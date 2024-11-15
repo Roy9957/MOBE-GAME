@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MOBE GAME</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden; /* Overflow removed */
+      width: 100vw;
+      height: 100vh;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      touch-action: none; /* Prevent default touch scrolling */
+      border: 3px solid black;
+      background: #f0f0f0; /* Better background */
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Shadow effect */
+      width: 100%;  /* Canvas width set to 100% */
+      height: 100%; /* Canvas height set to 100% */
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.3/socket.io.js"></script>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const socket = io('http://localhost:3000'); // Backend connection
+
+    // Player and Bullets Data
+    let player = { x: 400, y: 200, health: 100 }; // Initial position and health
+    let bullets = []; // Store bullets
+    let aim = { x: player.x, y: player.y }; // Aim position
+
+    // Adjust canvas size according to mobile width and height
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas); // Resize canvas on window resize
+    resizeCanvas(); // Initial resize
+
+    // Draw Player
+    function drawPlayer() {
+      ctx.fillStyle = 'blue';
+      ctx.fillRect(player.x - 20, player.y - 20, 40, 40); // Reduced player size
+    }
+
+    // Draw Health above player
+    function drawHealth() {
+      ctx.fillStyle = 'green';
+      ctx.fillRect(player.x - 20, player.y - 40, 40, 10); // Health bar above player
+      ctx.fillStyle = 'red';
+      ctx.fillRect(player.x - 20, player.y - 40, player.health * 0.4, 10); // Health bar (scaled by 0.4 for width)
+    }
+
+    // Draw Bullets
+    function drawBullets() {
+      bullets.forEach((bullet, index) => {
+        bullet.x += bullet.dx * 10; // Move in x direction
+        bullet.y += bullet.dy * 10; // Move in y direction
+
+        // Remove bullet if it goes off the screen
+        if (
+          bullet.x < 0 || 
+          bullet.x > canvas.width || 
+          bullet.y < 0 || 
+          bullet.y > canvas.height
+        ) {
+          bullets.splice(index, 1);
+        } else {
+          ctx.fillStyle = 'red'; // Bullet color set to red
+          ctx.beginPath();
+          ctx.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2); // Bullet as circle
+          ctx.fill();
+        }
+      });
+    }
+
+    // Touch Movement and Firing
+    canvas.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      const touchX = touch.clientX;
+      const touchY = touch.clientY;
+
+      // Set aim direction
+      aim.x = touchX;
+      aim.y = touchY;
+
+      // Calculate bullet direction (unit vector)
+      const angle = Math.atan2(aim.y - player.y, aim.x - player.x);
+      const dx = Math.cos(angle); // X direction
+      const dy = Math.sin(angle); // Y direction
+
+      // Add bullet to array
+      bullets.push({
+        x: player.x,
+        y: player.y,
+        dx: dx,
+        dy: dy,
+      });
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - player.x;
+      const deltaY = touch.clientY - player.y;
+
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0) player.x += 10; // Move right
+        else player.x -= 10; // Move left
+      } else {
+        if (deltaY > 0) player.y += 10; // Move down
+        else player.y -= 10; // Move up
+      }
+
+      socket.emit('playerMove', player); // Update position to server
+    });
+
+    // Update Players from Server
+    socket.on('updatePlayers', (players) => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      players.forEach(p => {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(p.x - 20, p.y - 20, 40, 40); // Player size reduced
+      });
+      drawBullets();
+      drawHealth(); // Draw health above player
+    });
+
+    // Game Loop
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+      drawPlayer();
+      drawBullets();
+      drawHealth(); // Always draw health bar
+      requestAnimationFrame(gameLoop); // Repeat loop
+    }
+
+    gameLoop(); // Start the game loop
+  </script>
+</body>
+</html>
