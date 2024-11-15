@@ -23,87 +23,77 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.3/socket.io.js"></script>
-  <script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+    // Your Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCrQJRwfTV8a1BIwMQexWxsHi2OKyTj8hg",
+      authDomain: "artificial-intelligence-55880.firebaseapp.com",
+      databaseURL: "https://artificial-intelligence-55880-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "artificial-intelligence-55880",
+      storageBucket: "artificial-intelligence-55880.appspot.com",
+      messagingSenderId: "985195404301",
+      appId: "1:985195404301:web:12aea7b9c4719b6bdb0944"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const socket = io('http://localhost:3000'); // Backend connection
 
-    // Player and Bullets Data
-    let player = { x: 400, y: 200, health: 100 }; // Initial position and health
-    let bullets = []; // Store bullets
-    let aim = { x: player.x, y: player.y }; // Aim position
+    // Player and Game State Data
+    const playerId = `player_${Math.random().toString(36).substr(2, 9)}`; // Unique player ID
+    let player = { id: playerId, x: 400, y: 200, health: 100 }; // Initial position and health
+    let players = {}; // Store all players' data
 
-    // Adjust canvas size according to mobile width and height
+    // Adjust canvas size
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
 
-    window.addEventListener('resize', resizeCanvas); // Resize canvas on window resize
+    window.addEventListener('resize', resizeCanvas);
     resizeCanvas(); // Initial resize
 
-    // Draw Player
-    function drawPlayer() {
-      ctx.fillStyle = 'blue';
-      ctx.fillRect(player.x - 20, player.y - 20, 40, 40); // Reduced player size
+    // Sync player to Firebase
+    function syncPlayer() {
+      const playerRef = ref(db, `players/${playerId}`);
+      set(playerRef, player);
+      onDisconnect(playerRef).remove(); // Remove player data on disconnect
     }
 
-    // Draw Health above player
-    function drawHealth() {
-      ctx.fillStyle = 'green';
-      ctx.fillRect(player.x - 20, player.y - 40, 40, 10); // Health bar above player
-      ctx.fillStyle = 'red';
-      ctx.fillRect(player.x - 20, player.y - 40, player.health * 0.4, 10); // Health bar (scaled by 0.4 for width)
-    }
-
-    // Draw Bullets
-    function drawBullets() {
-      bullets.forEach((bullet, index) => {
-        bullet.x += bullet.dx * 10; // Move in x direction
-        bullet.y += bullet.dy * 10; // Move in y direction
-
-        // Remove bullet if it goes off the screen
-        if (
-          bullet.x < 0 || 
-          bullet.x > canvas.width || 
-          bullet.y < 0 || 
-          bullet.y > canvas.height
-        ) {
-          bullets.splice(index, 1);
-        } else {
-          ctx.fillStyle = 'red'; // Bullet color set to red
-          ctx.beginPath();
-          ctx.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2); // Bullet as circle
-          ctx.fill();
-        }
-      });
-    }
-
-    // Touch Movement and Firing
-    canvas.addEventListener('touchstart', (e) => {
-      const touch = e.touches[0];
-      const touchX = touch.clientX;
-      const touchY = touch.clientY;
-
-      // Set aim direction
-      aim.x = touchX;
-      aim.y = touchY;
-
-      // Calculate bullet direction (unit vector)
-      const angle = Math.atan2(aim.y - player.y, aim.x - player.x);
-      const dx = Math.cos(angle); // X direction
-      const dy = Math.sin(angle); // Y direction
-
-      // Add bullet to array
-      bullets.push({
-        x: player.x,
-        y: player.y,
-        dx: dx,
-        dy: dy,
-      });
+    // Listen for changes to all players
+    onValue(ref(db, 'players'), (snapshot) => {
+      players = snapshot.val() || {}; // Get all players
+      renderGame(); // Re-render game
     });
 
+    // Draw all players
+    function drawPlayers() {
+      Object.values(players).forEach(p => {
+        ctx.fillStyle = p.id === playerId ? 'blue' : 'red'; // Different color for current player
+        ctx.fillRect(p.x - 20, p.y - 20, 40, 40);
+        ctx.fillStyle = 'green';
+        ctx.fillRect(p.x - 20, p.y - 40, 40, 10); // Health bar background
+        ctx.fillStyle = 'red';
+        ctx.fillRect(p.x - 20, p.y - 40, p.health * 0.4, 10); // Health bar fill
+      });
+    }
+
+    // Render the game
+    function renderGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlayers();
+    }
+
+    // Handle touch movement
     canvas.addEventListener('touchmove', (e) => {
       const touch = e.touches[0];
       const deltaX = touch.clientX - player.x;
@@ -117,29 +107,16 @@
         else player.y -= 10; // Move up
       }
 
-      socket.emit('playerMove', player); // Update position to server
+      syncPlayer(); // Update Firebase
     });
 
-    // Update Players from Server
-    socket.on('updatePlayers', (players) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      players.forEach(p => {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(p.x - 20, p.y - 20, 40, 40); // Player size reduced
-      });
-      drawBullets();
-      drawHealth(); // Draw health above player
-    });
-
-    // Game Loop
+    // Game loop to update and render
     function gameLoop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-      drawPlayer();
-      drawBullets();
-      drawHealth(); // Always draw health bar
-      requestAnimationFrame(gameLoop); // Repeat loop
+      renderGame();
+      requestAnimationFrame(gameLoop);
     }
 
+    syncPlayer(); // Initial sync
     gameLoop(); // Start the game loop
   </script>
 </body>
