@@ -5,32 +5,40 @@
   <style>
     body {
       margin: 0;
-      overflow: hidden; /* Overflow removed */
+      overflow: hidden;
       width: 100vw;
       height: 100vh;
     }
     canvas {
       display: block;
       margin: 0 auto;
-      touch-action: none; /* Prevent default touch scrolling */
+      touch-action: none;
       border: 3px solid black;
-      background: #f0f0f0; /* Better background */
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Shadow effect */
-      width: 100%;  /* Canvas width set to 100% */
-      height: 100%; /* Canvas height set to 100% */
+      background: #f0f0f0;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      height: 100%;
+    }
+    #gameOver {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      color: red;
+      font-family: Arial, sans-serif;
+      display: none;
     }
   </style>
 </head>
 <body>
+  <div id="gameOver">Game Over</div>
   <canvas id="gameCanvas"></canvas>
 
-  <!-- Firebase SDK -->
   <script type="module">
-    // Import Firebase SDKs
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
 
-    // Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCrQJRwfTV8a1BIwMQexWxsHi2OKyTj8hg",
       authDomain: "artificial-intelligence-55880.firebaseapp.com",
@@ -41,83 +49,133 @@
       appId: "1:985195404301:web:12aea7b9c4719b6bdb0944"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const gameOverText = document.getElementById('gameOver');
 
-    // Player and Game State Data
-    const playerId = `player_${Math.random().toString(36).substr(2, 9)}`; // Unique player ID
-    let player = { id: playerId, x: 400, y: 200, health: 100 }; // Initial position and health
-    let players = {}; // Store all players' data
+    const playerId = `player_${Math.random().toString(36).substr(2, 9)}`;
+    let player = { id: playerId, x: 400, y: 200, health: 100 };
+    let players = {};
+    let bullets = [];
 
-    // Adjust canvas size
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
 
     window.addEventListener('resize', resizeCanvas);
-    resizeCanvas(); // Initial resize
+    resizeCanvas();
 
-    // Sync player to Firebase
     function syncPlayer() {
       const playerRef = ref(db, `players/${playerId}`);
       set(playerRef, player);
-      onDisconnect(playerRef).remove(); // Remove player data on disconnect
+      onDisconnect(playerRef).remove();
     }
 
-    // Listen for changes to all players
+    function syncBullets() {
+      const bulletsRef = ref(db, `bullets`);
+      set(bulletsRef, bullets);
+    }
+
     onValue(ref(db, 'players'), (snapshot) => {
-      players = snapshot.val() || {}; // Get all players
-      renderGame(); // Re-render game
+      players = snapshot.val() || {};
+      renderGame();
     });
 
-    // Draw all players
+    onValue(ref(db, 'bullets'), (snapshot) => {
+      bullets = snapshot.val() || [];
+      renderGame();
+    });
+
     function drawPlayers() {
       Object.values(players).forEach(p => {
-        ctx.fillStyle = p.id === playerId ? 'blue' : 'green'; // Different color for current player
-        ctx.fillRect(p.x - 20, p.y - 20, 40, 40);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(p.x - 20, p.y - 40, 40, 10); // Health bar background
-        ctx.fillStyle = 'red';
-        ctx.fillRect(p.x - 20, p.y - 40, p.health * 0.4, 10); // Health bar fill
+        if (p.health > 0) {
+          ctx.fillStyle = p.id === playerId ? 'blue' : 'green';
+          ctx.fillRect(p.x - 20, p.y - 20, 40, 40);
+          ctx.fillStyle = 'green';
+          ctx.fillRect(p.x - 20, p.y - 40, 40, 10);
+          ctx.fillStyle = 'red';
+          ctx.fillRect(p.x - 20, p.y - 40, p.health * 0.4, 10);
+        }
       });
     }
 
-    // Render the game
+    function drawBullets() {
+      bullets.forEach(bullet => {
+        ctx.fillStyle = 'red';
+        ctx.beginPath();
+        ctx.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function updateBullets() {
+      bullets.forEach((bullet, index) => {
+        bullet.x += bullet.dx;
+        bullet.y += bullet.dy;
+
+        if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+          bullets.splice(index, 1);
+        } else {
+          Object.values(players).forEach(p => {
+            if (p.id !== playerId && Math.hypot(p.x - bullet.x, p.y - bullet.y) < 20) {
+              p.health -= 10;
+              set(ref(db, `players/${p.id}`), p);
+
+              if (p.health <= 0) {
+                remove(ref(db, `players/${p.id}`)); // Remove player
+                if (p.id === playerId) {
+                  playerDead(); // Call Game Over for self
+                }
+              }
+              bullets.splice(index, 1);
+            }
+          });
+        }
+      });
+    }
+
+    function playerDead() {
+      gameOverText.style.display = 'block';
+      cancelAnimationFrame(gameLoop);
+    }
+
     function renderGame() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawPlayers();
+      drawBullets();
     }
 
-    // Handle touch movement
-    canvas.addEventListener('touchmove', (e) => {
+    canvas.addEventListener('touchstart', (e) => {
       const touch = e.touches[0];
-      const deltaX = touch.clientX - player.x;
-      const deltaY = touch.clientY - player.y;
-
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 0) player.x += 10; // Move right
-        else player.x -= 10; // Move left
-      } else {
-        if (deltaY > 0) player.y += 10; // Move down
-        else player.y -= 10; // Move up
-      }
-
-      syncPlayer(); // Update Firebase
+      const angle = Math.atan2(touch.clientY - player.y, touch.clientX - player.x);
+      bullets.push({
+        x: player.x,
+        y: player.y,
+        dx: Math.cos(angle) * 5,
+        dy: Math.sin(angle) * 5
+      });
+      syncBullets();
     });
 
-    // Game loop to update and render
+    canvas.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      player.x = touch.clientX;
+      player.y = touch.clientY;
+      syncPlayer();
+    });
+
     function gameLoop() {
+      updateBullets();
       renderGame();
       requestAnimationFrame(gameLoop);
     }
 
-    syncPlayer(); // Initial sync
-    gameLoop(); // Start the game loop
+    syncPlayer();
+    gameLoop();
   </script>
 </body>
 </html>
