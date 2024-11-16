@@ -78,7 +78,7 @@
     // Draw all players
     function drawPlayers() {
       Object.values(players).forEach(p => {
-        ctx.fillStyle = p.id === playerId ? 'blue' : 'red'; // Different color for current player
+        ctx.fillStyle = p.id === playerId ? 'blue' : 'green'; // Different color for current player
         ctx.fillRect(p.x - 20, p.y - 20, 40, 40);
         ctx.fillStyle = 'green';
         ctx.fillRect(p.x - 20, p.y - 40, 40, 10); // Health bar background
