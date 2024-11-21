@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multiplayer MOBE Game</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  
+  <!-- Circle button to toggle chat -->
+  <div id="toggleButton" class="circle-button">
+    <img src="g.png" alt="kamla pasand" width="25" height="25">
+    <span id="unreadCount" class="unread-badge hidden">0</span> <!-- Unread message counter -->
+  </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getDatabase, ref, set, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCrQJRwfTV8a1BIwMQexWxsHi2OKyTj8hg",
+  authDomain: "artificial-intelligence-55880.firebaseapp.com",
+  databaseURL: "https://artificial-intelligence-55880-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "artificial-intelligence-55880",
+  storageBucket: "artificial-intelligence-55880.appspot.com",
+  messagingSenderId: "985195404301",
+  appId: "1:985195404301:web:12aea7b9c4719b6bdb0944"
+};
+
+
+
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+// Assign a unique player name
+const playerName = localStorage.getItem('playerName') || `Player_${Math.floor(Math.random() * 1000)}`;
+localStorage.setItem('playerName', playerName);
+
+// DOM Elements
+const messagesContainer = document.getElementById('messages');
+const chatInput = document.getElementById('chatInput');
+const sendButton = document.getElementById('sendButton');
+const toggleButton = document.getElementById('toggleButton');
+const chatContainer = document.getElementById('chatContainer');
+const unreadCount = document.getElementById('unreadCount'); // Unread message counter
+
+const chatId = "chat1"; // Unique chat room ID
+let unreadMessages = 0; // Track unread messages
+
+// Toggle chat visibility
+toggleButton.addEventListener('click', () => {
+  chatContainer.classList.toggle('hidden');
+  chatContainer.classList.toggle('chat-open');
+
+  // Reset unread message counter when chat is opened
+  if (!chatContainer.classList.contains('hidden')) {
+    unreadMessages = 0;
+    unreadCount.classList.add('hidden'); // Hide unread badge
+  }
+});
+
+// Send a message to Firebase
+function sendMessage() {
+  const message = chatInput.value.trim();
+  if (message !== "") {
+    const messageId = new Date().getTime(); // Unique message ID
+    const messageData = {
+      sender: playerName,
+      message: message,
+      timestamp: new Date().toISOString(),
+      read: false // Mark message as unread initially
+    };
+
+    const messageRef = ref(database, `chats/${chatId}/messages/${messageId}`);
+    set(messageRef, messageData)
+      .then(() => {
+        chatInput.value = ""; // Clear input
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+      });
+  }
+}
+
+// Listen for new messages in Firebase
+function listenForMessages() {
+  const messagesRef = ref(database, `chats/${chatId}/messages/`);
+  onChildAdded(messagesRef, (snapshot) => {
+    const messageData = snapshot.val();
+    const now = new Date().getTime();
+    const messageTimestamp = new Date(messageData.timestamp).getTime();
+
+    // Check if the message is older than 5 minutes
+    if (now - messageTimestamp > 5 * 60 * 1000) {
+      // Remove old message from Firebase
+      const messageRef = ref(database, `chats/${chatId}/messages/${snapshot.key}`);
+      remove(messageRef).catch((error) => {
+        console.error("Error removing old message:", error);
+      });
+    } else {
+      // Update unread message count for new messages from others
+      if (!messageData.read && messageData.sender !== playerName) {
+        unreadMessages++;
+        unreadCount.textContent = unreadMessages;
+        unreadCount.classList.remove('hidden'); // Show unread badge
+      }
+
+      displayMessage(messageData); // Show message
+    }
+  });
+}
+
+// Display a message on the screen
+function displayMessage(messageData) {
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message-item');
+
+  // Determine message style
+  if (messageData.sender === playerName) {
+    // If sender is the current user
+    messageElement.classList.add('player1-message');
+  } else {
+    // If sender is someone else
+    messageElement.classList.add('player2-message');
+  }
+
+  // Add message content
+  messageElement.innerHTML = `<span class="sender">${messageData.sender}: </span>${messageData.message}`;
+  
+  // Append to the chat container
+  messagesContainer.appendChild(messageElement);
+
+  // Auto-scroll to the bottom of the chat
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  // Mark the message as read
+  const messageRef = ref(database, `chats/${chatId}/messages/${messageData.timestamp}`);
+  set(messageRef, { ...messageData, read: true }).catch((error) => {
+    console.error("Error marking message as read:", error);
+  });
+}
+
+// Event listeners
+sendButton.addEventListener('click', sendMessage);
+
+// Initialize the message listener
+listenForMessages();
+
+</script>
+  <!-- Chat container -->
+  <div id="chatContainer" class="hidden">
+    <div id="messages" class="messages-container"></div>
+    <div class="message-input">
+      <textarea id="chatInput" placeholder="Type..."></textarea>
+      <button id="sendButton">Send</button>
+    </div>
+  </div>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <canvas id="gameCanvas"></canvas>
+  <div class="leaderboard" id="leaderboard"></div>
+
+  <script src="main.js" type="module">
+  
+  </script>
+</body>
+</html>
