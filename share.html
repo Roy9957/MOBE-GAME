@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOBE LINK SHARE</title>
+  
+  <audio autoplay loop>
+    <source src="f.mp3" type="audio/mp3">
+    আপনার ব্রাউজার অডিও উপাদান সমর্থন করে না।
+  </audio>
+  
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  <style>
+    /* সাধারণ স্টাইল */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: url('https://assets.onecompiler.app/42swzbgaa/4324xpz7j/1000048826.jpg') no-repeat center center/cover;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    /* কন্টেইনার */
+    .share-container {
+      text-align: center;
+      padding: 30px 20px;
+      border-radius: 12px;
+      background: rgba(50, 50, 50, 0.8);
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+    }
+
+    /* শিরোনাম */
+    h1 {
+      font-size: 30px;
+      margin-bottom: 20px;
+      color: #f1f1f1;
+      text-shadow: 0 4px 6px rgba(0, 0, 0, 0.9);
+      letter-spacing: 1px;
+    }
+
+    /* শেয়ার বাটন */
+    .share-button {
+      background: linear-gradient(135deg, #0072ff, #00c6ff);
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 14px 28px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    /* হোভার ইফেক্ট */
+    .share-button:hover {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      transform: scale(1.1);
+      box-shadow: 0 10px 25px rgba(0, 114, 255, 0.8);
+    }
+
+    /* QR কোড কন্টেইনার */
+    .qrcode-wrapper {
+      display: none;
+      position: relative;
+      margin-left: 50px;
+      margin-right: 50px;
+      margin-top: 10px;
+      border: 5px solid rgba(0, 255, 74, 1); /* সাদা হালকা বর্ডার */
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    #qrcode {
+      width: 250px;
+      height: 250px;
+    }
+
+    /* QR কোডের মধ্যে ইমেজ */
+    .qrcode-wrapper img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 50px;
+      height: 50px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 3px solid #FFFFFF;
+      background-color: #FFFFFF;
+    }
+
+    /* মোবাইলের জন্য স্টাইল */
+    @media (max-width: 768px) {
+      .share-container {
+        width: 90%;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .share-button {
+        font-size: 18px;
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="share-container">
+    <h1><i class="fas fa-share-alt"></i> Invite people</h1>
+    <button class="share-button" id="shareBtn">
+      <i class="fas fa-link"></i> Share link
+    </button><br>
+    <button class="share-button" id="qrBtn">
+      <i class="fas fa-qrcode"></i> Share MOBE Code
+    </button>
+    <div class="qrcode-wrapper" id="qrcode-wrapper">
+      <div id="qrcode"></div>
+      <img src="https://assets.onecompiler.app/42swzbgaa/432b6dfa2/1000048868.png" alt="Center Logo">
+    </div>
+  </div>
+
+  <script>
+    const baseLink = "https://mobe-link-share.web.app/";
+
+    // লিঙ্কের সাথে টাইমস্ট্যাম্প যোগ করা
+    function generateLinkWithExpireTime() {
+      const expireTime = new Date().toISOString(); // বর্তমান সময় ISO ফর্ম্যাটে
+      return `${baseLink}?expireTime=${encodeURIComponent(expireTime)}`;
+    }
+
+    // শেয়ার বাটনে ক্লিক ইভেন্ট
+    document.getElementById('shareBtn').addEventListener('click', () => {
+      const linkWithExpireTime = generateLinkWithExpireTime();
+
+      if (navigator.share) {
+        navigator.share({
+          title: 'MOBE LINK SHARE',
+          text: 'Link with MOBE WORLD➤',
+          url: linkWithExpireTime,
+        })
+          .then(() => console.log('Link shared successfully!'))
+          .catch((error) => console.error('Error sharing:', error));
+      } else {
+        alert('Sharing is not supported on this device.');
+      }
+    });
+
+    // QR কোড তৈরি ও দেখানো
+    document.getElementById('qrBtn').addEventListener('click', () => {
+      const linkWithExpireTime = generateLinkWithExpireTime();
+
+      const qrcodeContainer = document.getElementById('qrcode');
+      const qrcodeWrapper = document.getElementById('qrcode-wrapper');
+      qrcodeContainer.innerHTML = ""; // পুরনো কোড মুছে ফেলুন
+      new QRCode(qrcodeContainer, linkWithExpireTime);
+
+      // QR কোড প্রদর্শন/লুকানো
+      if (qrcodeWrapper.style.display === "none") {
+        qrcodeWrapper.style.display = "block";
+      } else {
+        qrcodeWrapper.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>

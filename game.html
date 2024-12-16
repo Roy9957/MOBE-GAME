@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multiplayer MOBE Game</title>
+
+</head>
+<body>
+  <style>body {
+  margin: 0;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  background: url('https://assets.onecompiler.app/42swzbgaa/432bwfgef/1000048872.jpg') no-repeat center center fixed;
+  background-size: cover;
+        
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+  touch-action: none;
+  border: 3px solid black;
+  
+  width: 100%;
+  height: 100%;
+}
+
+.leaderboard {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+/* Circle button */
+.circle-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+ 
+  z-index: 999;
+}
+
+.circle-button:hover {
+  background-color: #0056b3;
+}
+
+/* Unread message counter (red badge) */
+#unreadCount {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+#unreadCount.hidden {
+  display: none;
+}
+
+/* Chat container */
+#chatContainer {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 300px;
+  height: 400px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  transform: scale(0); /* Start with small size */
+  opacity: 0; /* Hide initially */
+}
+
+/* Show chat container */
+#chatContainer.chat-open {
+  transform: scale(1); /* Expand to normal size */
+  opacity: 1; /* Show the container */
+}
+
+/* Hidden class */
+.hidden {
+  display: none;
+}
+
+/* Messages container */
+.messages-container {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+/* Message item */
+.message-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f1f1f1;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+/* Player 1 message */
+.player1-message {
+  background-color: #0049FF;
+  color: white;
+  align-self: flex-start; /* Align left */
+}
+
+/* Player 2 message */
+.player2-message {
+  background-color: #FF2D00;
+  color: white;
+  align-self: flex-end; /* Align right */
+}
+
+/* Message input section */
+.message-input {
+  display: flex;
+  padding: 10px;
+  background-color: #F1F1F1;
+  border-top: 1px solid #DDDDDD;
+}
+
+.message-input textarea {
+  flex: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #DDDDDD;
+  resize: none;
+}
+
+.message-input button {
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+ 
+}
+
+.message-input button:hover {
+  background-color: #0056B3;
+}
+
+
+</style>
+  
+  <!-- Circle button to toggle chat -->
+  <div id="toggleButton" class="circle-button">
+    <img src="g.png" alt="kamla pasand" width="25" height="25">
+    <span id="unreadCount" class="unread-badge hidden">0</span> <!-- Unread message counter -->
+  </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getDatabase, ref, set, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCrQJRwfTV8a1BIwMQexWxsHi2OKyTj8hg",
+  authDomain: "artificial-intelligence-55880.firebaseapp.com",
+  databaseURL: "https://artificial-intelligence-55880-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "artificial-intelligence-55880",
+  storageBucket: "artificial-intelligence-55880.appspot.com",
+  messagingSenderId: "985195404301",
+  appId: "1:985195404301:web:12aea7b9c4719b6bdb0944"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+// Assign a unique player name
+const playerName = localStorage.getItem('playerName') || `Player_${Math.floor(Math.random() * 1000)}`;
+localStorage.setItem('playerName', playerName);
+
+// DOM Elements
+const messagesContainer = document.getElementById('messages');
+const chatInput = document.getElementById('chatInput');
+const sendButton = document.getElementById('sendButton');
+const toggleButton = document.getElementById('toggleButton');
+const chatContainer = document.getElementById('chatContainer');
+const unreadCount = document.getElementById('unreadCount'); // Unread message counter
+
+const chatId = "chat1"; // Unique chat room ID
+let unreadMessages = 0; // Track unread messages
+
+// Toggle chat visibility
+toggleButton.addEventListener('click', () => {
+  chatContainer.classList.toggle('hidden');
+  chatContainer.classList.toggle('chat-open');
+
+  // Reset unread message counter when chat is opened
+  if (!chatContainer.classList.contains('hidden')) {
+    unreadMessages = 0;
+    unreadCount.classList.add('hidden'); // Hide unread badge
+  }
+});
+
+// Send a message to Firebase
+function sendMessage() {
+  const message = chatInput.value.trim();
+  if (message !== "") {
+    const messageId = new Date().getTime(); // Unique message ID
+    const messageData = {
+      sender: playerName,
+      message: message,
+      timestamp: new Date().toISOString(),
+      read: false // Mark message as unread initially
+    };
+
+    const messageRef = ref(database, `chats/${chatId}/messages/${messageId}`);
+    set(messageRef, messageData)
+      .then(() => {
+        chatInput.value = ""; // Clear input
+      })
+      .catch((error) => {
+        console.error("Error sending message:", error);
+      });
+  }
+}
+
+// Listen for new messages in Firebase
+function listenForMessages() {
+  const messagesRef = ref(database, `chats/${chatId}/messages/`);
+  onChildAdded(messagesRef, (snapshot) => {
+    const messageData = snapshot.val();
+    const now = new Date().getTime();
+    const messageTimestamp = new Date(messageData.timestamp).getTime();
+
+    // Check if the message is older than 5 minutes
+    if (now - messageTimestamp > 5 * 60 * 1000) {
+      // Remove old message from Firebase
+      const messageRef = ref(database, `chats/${chatId}/messages/${snapshot.key}`);
+      remove(messageRef).catch((error) => {
+        console.error("Error removing old message:", error);
+      });
+    } else {
+      // Update unread message count for new messages from others
+      if (!messageData.read && messageData.sender !== playerName) {
+        unreadMessages++;
+        unreadCount.textContent = unreadMessages;
+        unreadCount.classList.remove('hidden'); // Show unread badge
+      }
+
+      displayMessage(messageData); // Show message
+    }
+  });
+}
+
+// Display a message on the screen
+function displayMessage(messageData) {
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message-item');
+
+  // Determine message style
+  if (messageData.sender === playerName) {
+    // If sender is the current user
+    messageElement.classList.add('player1-message');
+  } else {
+    // If sender is someone else
+    messageElement.classList.add('player2-message');
+  }
+
+  // Add message content
+  messageElement.innerHTML = `<span class="sender">${messageData.sender}: </span>${messageData.message}`;
+  
+  // Append to the chat container
+  messagesContainer.appendChild(messageElement);
+
+  // Auto-scroll to the bottom of the chat
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+  // Mark the message as read
+  const messageRef = ref(database, `chats/${chatId}/messages/${messageData.timestamp}`);
+  set(messageRef, { ...messageData, read: true }).catch((error) => {
+    console.error("Error marking message as read:", error);
+  });
+}
+
+// Event listeners
+sendButton.addEventListener('click', sendMessage);
+
+// Initialize the message listener
+listenForMessages();
+
+</script>
+  <!-- Chat container -->
+  <div id="chatContainer" class="hidden">
+    <div id="messages" class="messages-container"></div>
+    <div class="message-input">
+      <textarea id="chatInput" placeholder="Type..."></textarea>
+      <button id="sendButton">Send</button>
+    </div>
+  </div>
+   <canvas id="gameCanvas"></canvas>
+  <div class="leaderboard" id="leaderboard"></div>
+
+  <script type="module">
+   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCrQJRwfTV8a1BIwMQexWxsHi2OKyTj8hg",
+  authDomain: "artificial-intelligence-55880.firebaseapp.com",
+  databaseURL: "https://artificial-intelligence-55880-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "artificial-intelligence-55880",
+  storageBucket: "artificial-intelligence-55880.appspot.com",
+  messagingSenderId: "985195404301",
+  appId: "1:985195404301:web:12aea7b9c4719b6bdb0944"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const leaderboardDiv = document.getElementById('leaderboard');
+
+const playerId = `player_${Math.random().toString(36).substr(2, 9)}`;
+let player = { id: playerId, x: 400, y: 500, health: 100, score: 0, bullets: [] };
+let players = {};
+let enemies = [];
+let enemyBullets = [];
+let powerUps = [];
+const enemyColors = ["purple", "red", "green"];
+
+// Load the player's image
+const playerImage = new Image();
+playerImage.src = 'i.png'; // Replace with the actual path to your PNG image
+
+// Second player image
+const player2Image = new Image();
+player2Image.src = 'k.png'; // Replace with the actual path for the second player's image
+const fireSound = new Audio('shooting.mp3'); // সাউন্ড ফাইলের পথ দিন
+
+
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function syncPlayer() {
+  const playerRef = ref(db, `players/${playerId}`);
+  set(playerRef, player);
+  onDisconnect(playerRef).remove();
+}
+
+onValue(ref(db, 'players'), (snapshot) => {
+  players = snapshot.val() || {};
+  updateLeaderboard();
+});
+
+function updateLeaderboard() {
+  const sortedPlayers = Object.values(players).sort((a, b) => b.score - a.score);
+  leaderboardDiv.innerHTML = "<b>Leaderboard</b><br>";
+  sortedPlayers.forEach(p => {
+    leaderboardDiv.innerHTML += `${p.id}: ${p.score}<br>`;
+  });
+}
+
+function spawnEnemy() {
+  if (Math.random() < 0.02) {
+    enemies.push({
+      x: Math.random() * canvas.width,
+      y: -30,
+      width: 35,
+      height: 35,
+      health: 2,
+      color: enemyColors[Math.floor(Math.random() * enemyColors.length)]
+    });
+  }
+}
+
+function spawnPowerUp() {
+  if (Math.random() < 0.01) {
+    powerUps.push({
+      x: Math.random() * canvas.width,
+      y: -30,
+      width: 20,
+      height: 20,
+      type: Math.random() < 0.5 ? "health" : "score"
+    });
+  }
+}
+
+function enemyShoot() {
+  enemies.forEach(enemy => {
+    if (Math.random() < 0.01) {
+      enemyBullets.push({
+        x: enemy.x + 20,
+        y: enemy.y + 40,
+        width: 5,
+        height: 10,
+        speed: 5
+      });
+    }
+  });
+}
+
+function checkCollision(rect1, rect2) {
+  return (
+    rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y
+  );
+}// Enemy images
+const enemyImages = {
+  purple: new Image(),
+  red: new Image(),
+  green: new Image()
+};
+
+enemyImages.purple.src = 's.png'; // Replace with the path of purple enemy image
+enemyImages.red.src = 'na.png'; // Replace with the path of red enemy image
+enemyImages.green.src = 'h.png'; // Replace with the path of green enemy image
+
+function drawEntities() {
+  // Draw the local player's avatar
+  if (playerImage.complete) {
+    ctx.drawImage(playerImage, player.x - 20, player.y - 20, 40, 40); // Adjust size as needed
+  } else {
+    ctx.fillStyle = "blue";
+    ctx.fillRect(player.x - 20, player.y - 20, 40, 40);
+  }
+
+  // Draw other players and their health bars
+  Object.values(players).forEach(p => {
+    if (p.id !== playerId) {
+      const otherPlayerImage = p.id === playerId ? playerImage : player2Image;
+
+      if (otherPlayerImage.complete) {
+        ctx.drawImage(otherPlayerImage, p.x - 20, p.y - 20, 40, 40);
+      } else {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(p.x - 20, p.y - 20, 40, 40);
+      }
+
+      ctx.fillStyle = "red";
+      ctx.fillRect(p.x - 20, p.y - 40, p.health * 0.4, 5);
+
+      ctx.fillStyle = "white";
+      ctx.font = "12px Arial";
+      ctx.fillText(p.id, p.x - 30, p.y - 50);
+    }
+  });
+
+  // Draw enemies using images
+  enemies.forEach(enemy => {
+    const enemyImage = enemyImages[enemy.color];
+    if (enemyImage && enemyImage.complete) {
+      ctx.drawImage(enemyImage, enemy.x, enemy.y, enemy.width, enemy.height);
+    } else {
+      ctx.fillStyle = enemy.color;
+      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    }
+  });
+
+  // Draw bullets
+  player.bullets.forEach(bullet => {
+    ctx.fillStyle = "red";
+    ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+  });
+
+  enemyBullets.forEach(bullet => {
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+  });
+
+  // Draw power-ups
+  powerUps.forEach(powerUp => {
+    ctx.fillStyle = powerUp.type === "health" ? "gold" : "gold";
+    ctx.fillRect(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+  });
+}
+function updateGame() {
+  // Handle player's bullets
+  player.bullets = player.bullets.filter(bullet => {
+    bullet.y -= 5;
+    enemies.forEach((enemy, index) => {
+      if (checkCollision(bullet, enemy)) {
+        enemy.health -= 1;
+        if (enemy.health <= 0) {
+          player.score += 10;
+          enemies.splice(index, 1);
+        }
+        bullet.hit = true;
+      }
+    });
+    return !bullet.hit && bullet.y > 0;
+  });
+
+  // Handle enemies
+  enemies = enemies.filter(enemy => {
+    enemy.y += 2;
+
+    if (checkCollision(enemy, player)) {
+      player.health -= 10; // Decrease health if enemy collides with player
+      return false;
+    }
+
+    return enemy.y < canvas.height;
+  });
+
+  // Handle enemy bullets
+  enemyBullets = enemyBullets.filter(bullet => {
+    bullet.y += bullet.speed;
+
+    // Check if enemy bullet collides with the player
+    if (checkCollision(bullet, player)) {
+      player.health -= 30; // Decrease health if enemy bullet hits player
+      bullet.hit = true; // Mark the bullet as hit so it stops moving
+    }
+
+    return !bullet.hit && bullet.y < canvas.height;
+  });
+
+  // Handle power-ups
+  powerUps = powerUps.filter(powerUp => {
+    powerUp.y += 2;
+    if (checkCollision(player, powerUp)) {
+      if (powerUp.type === "health") player.health = Math.min(100, player.health + 20);
+      if (powerUp.type === "score") player.score += 50;
+      return false;
+    }
+    return powerUp.y < canvas.height;
+  });
+
+  // Check if player health is below 0
+  if (player.health <= 0) {
+    alert("Game Over!");
+    player.health = 0;
+    player.score = 0;
+  }
+}
+
+canvas.addEventListener('touchmove', (e) => {
+  const touch = e.touches[0];
+  player.x = touch.clientX;
+  player.y = touch.clientY;
+  syncPlayer();
+});
+canvas.addEventListener('touchstart', () => {
+  player.bullets.push({
+    x: player.x - 2.5,
+    y: player.y - 20,
+    width: 5,
+    height: 10,
+    hit: false
+  });
+
+  fireSound.play(); // ফায়ার সাউন্ড প্লে হবে
+
+  syncPlayer();
+});
+
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  spawnEnemy();
+  spawnPowerUp();
+  enemyShoot();
+  updateGame();
+  drawEntities();
+  requestAnimationFrame(gameLoop);
+}
+
+syncPlayer();
+gameLoop();
+
+  </script>
+</body>
+</html>

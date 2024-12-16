@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOBE GAME STARTING NOW</title>
+    <style>
+      
+        
+        body {
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #111;
+            color: white;
+          
+            font-family: 'Arial', sans-serif;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Logo styling */
+        .logo {
+            width: 200px;
+            height: 200px;
+            background: url('https://assets.onecompiler.app/42swzbgaa/432c6jzfg/1000048873.png') no-repeat center;
+            background-size: contain;
+            opacity: 0;
+            animation: fadeIn 4s ease-out forwards;
+        }
+
+        /* Logo text styling */
+        .logo-text {
+            font-size: 40px;
+            color: #ffcc00;
+            text-align: center;
+            margin-top: -20px;
+            opacity: 0;
+            animation: fadeIn 4s ease-out forwards 1s;
+        }
+
+        /* Progress bar container */
+        .progress-container {
+            width: 90%;
+            background-color: #0019FF;
+          
+            margin-top: 30px;
+            height: 10px;
+            display: none;
+            box-shadow: 0 5px 15px rgba(255, 191, 0, 1);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            
+            background-color: #FFAD00;
+            border-radius: 0px;
+            animation: loading 8s linear forwards;
+        }
+
+        /* Error message styling */
+        .error-message {
+            display: none;
+            color: red;
+            font-size: 10px;
+            margin-top: 20px;
+        }
+
+        /* Main content with glitch effect */
+        .main-content {
+            display: none;
+            text-align: center;
+            font-size: 50px;
+            font-family: 'Monospace', sans-serif;
+            color: #FFCC00;
+            position: relative;
+            animation: glitchColor 1s infinite;
+        }
+
+        .main-content::before,
+        .main-content::after {
+            content: "WELCOME TO MOBE GAME";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: #FF0000;
+            animation: glitchEffect 0.1s infinite;
+        }
+
+        .main-content::after {
+            color: #0000FF;
+            animation-delay: 0.2s;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Progress bar loading animation */
+        @keyframes loading {
+            0% {
+                width: 0%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        /* Glitch effect animation */
+        @keyframes glitchEffect {
+            0% {
+                clip: rect(10px, 9999px, 80px, 0);
+                transform: translate(3px, -3px);
+            }
+            25% {
+                clip: rect(20px, 9999px, 60px, 0);
+                transform: translate(-3px, 3px);
+            }
+            50% {
+                clip: rect(30px, 9999px, 40px, 0);
+                transform: translate(3px, 3px);
+            }
+            75% {
+                clip: rect(40px, 9999px, 20px, 0);
+                transform: translate(-3px, -3px);
+            }
+            100% {
+                clip: rect(50px, 9999px, 100px, 0);
+                transform: translate(0, 0);
+            }
+        }
+
+        /* Glitch color shift */
+        @keyframes glitchColor {
+            0%, 100% {
+                text-shadow: 3px 3px purple, -3px -3px red;
+            }
+            50% {
+                text-shadow: -3px -3px blue, 3px 3px red;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo -->
+    <div class="logo"></div>
+
+    <!-- Logo text -->
+    <div class="logo-text">MOBE SPOOKY 𔓎</div>
+ 
+    
+
+    <!-- Progress bar -->
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <!-- Error message -->
+    <div class="error-message">
+        Connection error! Please connect your internet connection.
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        WELCOME TO MOBE GAME
+    </div>
+
+    <script>
+        function checkInternetConnection() {
+            return navigator.onLine;
+        }
+
+        function startGame() {
+            setTimeout(function () {
+                document.querySelector('.logo').style.display = 'none';
+                document.querySelector('.logo-text').style.display = 'none';
+                document.querySelector('.progress-container').style.display = 'block';
+            }, 5000);
+
+            setTimeout(function () {
+                document.querySelector('.progress-container').style.display = 'none';
+                document.querySelector('.main-content').style.display = 'block';
+            }, 14000);
+
+            setTimeout(function () {
+                window.location.href = 'lobby.html';
+            }, 20000);
+        }
+
+        if (checkInternetConnection()) {
+            startGame();
+        } else {
+            document.querySelector('.error-message').style.display = 'block';
+        }
+
+        // Listen for internet connection changes
+        window.addEventListener('online', () => {
+            document.querySelector('.error-message').style.display = 'none';
+            startGame();
+        });
+
+        window.addEventListener('offline', () => {
+            document.querySelector('.error-message').style.display = 'block';
+            document.querySelector('.progress-container').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

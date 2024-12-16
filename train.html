@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOBE TRAINING</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    background: url('https://assets.onecompiler.app/42swzbgaa/432bwfgef/1000048872.jpg') no-repeat center center fixed;
+    background-size: cover;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
+    #healthBarContainer {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 200px;
+      height: 20px;
+      background-color: #444;
+      border: 2px solid white;
+      border-radius: 10px;
+    }
+    #healthBar {
+      height: 100%;
+      background-color: green;
+      border-radius: 8px;
+      transition: width 0.2s ease;
+    }
+    #gameOver {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      color: white;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <div id="healthBarContainer">
+    <div id="healthBar"></div>
+  </div>
+  <div id="gameOver">Game Over</div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Player and Enemy image setup
+    const playerImage = new Image();
+    playerImage.src = 'i.png'; // Replace with your player image path
+
+    const enemyImage = new Image();
+    enemyImage.src = 'j.png'; // Replace with your enemy image path
+
+    // Fire sound setup
+    const fireSound = new Audio('shooting.mp3'); // Replace with your sound file path
+    fireSound.volume = 0.5; // Adjust volume (0.0 to 1.0)
+
+    let player = { x: canvas.width / 2, y: canvas.height - 50, width: 40, height: 40, health: 100 };
+    let bullets = [];
+    let enemyBullets = [];
+    let enemies = [];
+    let keys = {};
+    let gameOver = false;
+
+    // Keydown and keyup for desktop control
+    window.addEventListener('keydown', (e) => keys[e.key] = true);
+    window.addEventListener('keyup', (e) => keys[e.key] = false);
+
+    // Touch controls for mobile
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      const touchX = e.touches[0].clientX;
+      const touchY = e.touches[0].clientY;
+
+      if (Math.abs(touchX - touchStartX) > 10) {
+        player.x += touchX - touchStartX; // Move player horizontally
+        touchStartX = touchX;
+      }
+      if (Math.abs(touchY - touchStartY) > 10) {
+        player.y += touchY - touchStartY; // Move player vertically
+        touchStartY = touchY;
+      }
+    });
+
+    // Player fire bullets one by one
+    let canFire = true;
+    function playerFire() {
+      if ((keys['Enter '] || keys['Enter'] || (touchStartX && touchStartY)) && canFire) {
+        const bullet = { x: player.x, y: player.y - player.height / 2, width: 5, height: 10, speed: 5 };
+        bullets.push(bullet);
+
+        // Play fire sound
+        fireSound.currentTime = 0; // Reset sound to start for rapid fire
+        fireSound.play();
+
+        canFire = false;  // Prevent firing again immediately
+        setTimeout(() => { canFire = true; }, 500); // Allow firing after a delay of 500ms
+      }
+    }
+
+    function createEnemy() {
+      const x = Math.random() * canvas.width;
+      const y = -50;
+      const speed = Math.random() * 2 + 1;
+      const health = 3;
+      enemies.push({ x, y, width: 40, height: 40, speed, health });
+    }
+
+    function drawPlayer() {
+      ctx.drawImage(playerImage, player.x - player.width / 2, player.y - player.height / 2, player.width, player.height);
+    }
+
+    function drawBullets() {
+      for (let i = 0; i < bullets.length; i++) {
+        const bullet = bullets[i];
+        bullet.y -= bullet.speed;
+        ctx.fillStyle = 'red';
+        ctx.fillRect(bullet.x - bullet.width / 2, bullet.y - bullet.height / 2, bullet.width, bullet.height);
+
+        if (bullet.y < 0) {
+          bullets.splice(i, 1);
+          i--;
+        }
+      }
+    }
+
+    // Other functions remain unchanged...
+
+function drawEnemyBullets() {
+  for (let i = 0; i < enemyBullets.length; i++) {
+    const bullet = enemyBullets[i];
+    bullet.y += bullet.speed;
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(bullet.x - bullet.width / 2, bullet.y - bullet.height / 2, bullet.width, bullet.height);
+
+    if (bullet.y > canvas.height) {
+      enemyBullets.splice(i, 1);
+      i--;
+    }
+  }
+}
+
+function drawEnemies() {
+  for (let i = 0; i < enemies.length; i++) {
+    const enemy = enemies[i];
+    enemy.y += enemy.speed;
+    ctx.drawImage(enemyImage, enemy.x - enemy.width / 2, enemy.y - enemy.height / 2, enemy.width, enemy.height);
+
+    if (enemy.y > canvas.height) {
+      enemies.splice(i, 1);
+      i--;
+    }
+  }
+}
+
+function enemyFire() {
+  enemies.forEach(enemy => {
+    if (Math.random() < 0.02) { // Random chance for enemy to shoot
+      const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+      const bulletSpeed = 4;
+      enemyBullets.push({
+        x: enemy.x,
+        y: enemy.y,
+        width: 5,
+        height: 10,
+        speed: bulletSpeed
+      });
+    }
+  });
+}
+
+function updatePlayerMovement() {
+  if (keys['ArrowLeft']) player.x -= 5;
+  if (keys['ArrowRight']) player.x += 5;
+  if (keys['ArrowUp']) player.y -= 5;
+  if (keys['ArrowDown']) player.y += 5;
+
+  player.x = Math.max(0, Math.min(player.x, canvas.width));
+  player.y = Math.max(0, Math.min(player.y, canvas.height));
+}
+
+function collisionDetection() {
+  // Bullet hit detection for enemies
+  for (let i = 0; i < bullets.length; i++) {
+    const bullet = bullets[i];
+    for (let j = 0; j < enemies.length; j++) {
+      const enemy = enemies[j];
+      if (bullet.x > enemy.x - enemy.width / 2 && bullet.x < enemy.x + enemy.width / 2 &&
+          bullet.y > enemy.y - enemy.height / 2 && bullet.y < enemy.y + enemy.height / 2) {
+        enemies[j].health -= 10;
+        bullets.splice(i, 1);
+        i--;
+        if (enemies[j].health <= 0) {
+          enemies.splice(j, 1);
+          j--;
+        }
+      }
+    }
+  }
+
+  // Check if enemy hits player
+  for (let i = 0; i < enemies.length; i++) {
+    const enemy = enemies[i];
+    if (player.x < enemy.x + enemy.width / 2 &&
+        player.x + player.width / 2 > enemy.x &&
+        player.y < enemy.y + enemy.height / 2 &&
+        player.y + player.height / 2 > enemy.y) {
+      player.health -= 10;
+      updateHealthBar();
+      enemies.splice(i, 1);
+      i--;
+    }
+  }
+
+  // Check if enemy bullet hits player
+  for (let i = 0; i < enemyBullets.length; i++) {
+    const bullet = enemyBullets[i];
+    if (bullet.x > player.x - player.width / 2 && bullet.x < player.x + player.width / 2 &&
+        bullet.y > player.y - player.height / 2 && bullet.y < player.y + player.height / 2) {
+      player.health -= 5;
+      updateHealthBar();
+      enemyBullets.splice(i, 1);
+      i--;
+    }
+  }
+
+  // Check if player health is 0
+  if (player.health <= 0 && !gameOver) {
+    gameOver = true;
+    document.getElementById('gameOver').style.display = 'block'; // Show Game Over message
+    cancelAnimationFrame(gameLoop); // Stop the game loop
+  }
+}
+function updateHealthBar() {
+  const healthPercentage = (player.health / 100) * 100;
+  const healthBar = document.getElementById('healthBar');
+  healthBar.style.width = healthPercentage + '%';
+
+  // Animate color change using transition
+  healthBar.style.transition = 'width 0.5s ease, background-color 0.5s ease';
+
+  if (healthPercentage > 60) {
+    healthBar.style.backgroundColor = 'green';
+  } else if (healthPercentage > 25) {
+    healthBar.style.backgroundColor = 'yellow';
+  } else if (healthPercentage > 5) {
+    healthBar.style.backgroundColor = 'red';
+  }else {
+    healthBar.style.backgroundColor = 'blue';}
+}
+
+
+
+function gameLoop() {
+  if (gameOver) return; // If game over, stop the game loop
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawPlayer();
+  drawBullets();
+  drawEnemyBullets();
+  drawEnemies();
+  collisionDetection();
+  enemyFire();
+  updatePlayerMovement();
+  playerFire();
+
+  requestAnimationFrame(gameLoop);
+}
+
+
+
+    setInterval(createEnemy, 1000); // Create enemies every second
+    gameLoop();
+  </script>
+</body>
+</html>
