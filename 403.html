@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 Forbidden</title>
+    <!-- Google Fonts Link -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome Link -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: #212121;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .container {
+            background: linear-gradient(45deg, #FF3B3F, #FF1F1F);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+            animation: slideIn 1.5s ease-out;
+        }
+
+        h1 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 120px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #FFF;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 2s ease-out;
+        }
+
+        p {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f0f0f0;
+            margin-bottom: 30px;
+        }
+a{
+  cursor: default;
+}
+ .button {
+    display: inline-block;
+    width: 200px;  /* Adjust the width of the button */
+    height: 50px;  /* Adjust the height of the button */
+    background-image: url('y.gif'); /* Add your image URL */
+    background-size: cover;  /* Make the image cover the whole button */
+    background-position: center;  /* Center the image */
+    
+    text-align: center;
+    line-height: 50px;  /* Vertically center the text */
+    font-size: 18px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: 0.3s ease-in-out;
+}
+
+.button:hover {
+    background-color: rgba(255, 59, 63, 0.8);  /* Slight overlay on hover */
+}
+
+.button:active {
+    background-color: rgba(255, 59, 63, 1);
+}
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 90px;
+            }
+
+            p {
+                font-size: 18px;
+            }
+
+            .button {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>403</h1>
+        <p>Forbidden: You don't have permission to access this page.</p>
+    <a href="/" class="button"></a>
+        
+    </div>
+</body>
+</html>
