@@ -3,185 +3,514 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MOBE LINK SHARE</title>
+  <title>MOBE INVITE SYSTEM</title>
+  <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
   
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-    
-    <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
-  
-  <audio autoplay loop>
-    <source src="f.mp3" type="audio/mp3">
-    আপনার ব্রাউজার অডিও উপাদান সমর্থন করে না।
-  </audio>
-  
-  
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- QR Code Library -->
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  
   <style>
-    /* সাধারণ স্টাইল */
-    body {
+    :root {
+      --primary: #00FFCD;
+      --secondary: #0099FF;
+      --accent: #FF00AA;
+      --dark: #0A0A2A;
+      --light: #E0F8FF;
+      --glow: 0 0 15px currentColor;
+    }
+    
+    * {
       margin: 0;
       padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background: url('https://assets.onecompiler.app/42swzbgaa/4324xpz7j/1000048826.jpg') no-repeat center center/cover;
-      height: 100vh;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: var(--light);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #fff;
+      padding: 20px;
     }
-
-    /* কন্টেইনার */
+    
+    /* Main Container */
     .share-container {
+      background: rgba(10, 10, 42, 0.9);
+      border-radius: 15px;
+      padding: 30px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 0 30px rgba(0, 153, 255, 0.3);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--primary);
       text-align: center;
-      padding: 30px 20px;
-      border-radius: 12px;
-      background: rgba(50, 50, 50, 0.8);
-      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(8px);
     }
-
-    /* শিরোনাম */
-    h1 {
-      font-size: 30px;
-      margin-bottom: 20px;
-      color: #f1f1f1;
-      text-shadow: 0 4px 6px rgba(0, 0, 0, 0.9);
-      letter-spacing: 1px;
+    
+    /* Header */
+    .share-header {
+      margin-bottom: 25px;
     }
-
-    /* শেয়ার বাটন */
+    
+    .share-title {
+      font-size: 2rem;
+      color: var(--primary);
+      text-shadow: var(--glow);
+      margin-bottom: 10px;
+    }
+    
+    .share-subtitle {
+      color: var(--secondary);
+      font-size: 1rem;
+    }
+    
+    /* Buttons */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
     .share-button {
-      background: linear-gradient(135deg, #0072ff, #00c6ff);
+      padding: 15px 25px;
       border: none;
-      color: #fff;
-      font-size: 20px;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
       font-weight: bold;
-      padding: 14px 28px;
-      border-radius: 10px;
+      font-size: 1.1rem;
       cursor: pointer;
-      transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5);
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-    }
-
-    /* হোভার ইফেক্ট */
-    .share-button:hover {
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      transform: scale(1.1);
-      box-shadow: 0 10px 25px rgba(0, 114, 255, 0.8);
-    }
-
-    /* QR কোড কন্টেইনার */
-    .qrcode-wrapper {
-      display: none;
+      gap: 10px;
       position: relative;
-      margin-left: 50px;
-      margin-right: 50px;
-      margin-top: 10px;
-      border: 5px solid rgba(0, 255, 74, 1); /* সাদা হালকা বর্ডার */
-      padding: 10px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      z-index: 1;
     }
-
+    
+    .share-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+      z-index: -1;
+    }
+    
+    .share-button:hover::before {
+      left: 100%;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: var(--dark);
+      box-shadow: 0 0 15px rgba(0, 255, 205, 0.5);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(45deg, var(--secondary), var(--accent));
+      color: white;
+      box-shadow: 0 0 15px rgba(0, 153, 255, 0.5);
+    }
+    
+    .btn-tertiary {
+      background: linear-gradient(45deg, var(--accent), #FF00FF);
+      color: white;
+      box-shadow: 0 0 15px rgba(255, 0, 170, 0.5);
+    }
+    
+    .share-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 25px currentColor;
+    }
+    
+    .share-button:active {
+      transform: translateY(0);
+    }
+    
+    /* QR Code Section */
+    .qrcode-section {
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .qrcode-wrapper {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-bottom: 20px;
+      border: 3px solid var(--primary);
+      box-shadow: 0 0 20px rgba(0, 255, 205, 0.3);
+    }
+    
     #qrcode {
-      width: 250px;
-      height: 250px;
+      width: 200px;
+      height: 200px;
     }
-
-    /* QR কোডের মধ্যে ইমেজ */
+    
     .qrcode-wrapper img {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 50px;
-      height: 50px;
       transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      border: 3px solid #FFFFFF;
-      background-color: #FFFFFF;
+      border: 2px solid white;
     }
-
-    /* মোবাইলের জন্য স্টাইল */
+    
+    /* Link Section */
+    .link-section {
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .link-container {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--secondary);
+    }
+    
+    #shareLink {
+      flex: 1;
+      padding: 12px 15px;
+      background: transparent;
+      border: none;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .copy-btn {
+      padding: 0 15px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .copy-btn:hover {
+      background: var(--primary);
+    }
+    
+    /* Stats Section */
+    .stats-section {
+      margin-top: 25px;
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+    
+    .stat-item {
+      padding: 10px;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      color: var(--primary);
+      font-weight: bold;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--secondary);
+      margin-top: 5px;
+    }
+    
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 255, 205, 0.9);
+      color: var(--dark);
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 15px rgba(0, 255, 205, 0.5);
+      z-index: 100;
+      display: none;
+    }
+    
+    /* Responsive */
     @media (max-width: 768px) {
       .share-container {
-        width: 90%;
+        padding: 20px;
       }
-
-      h1 {
-        font-size: 24px;
+      
+      .share-title {
+        font-size: 1.5rem;
       }
-
+      
+      .button-group {
+        gap: 10px;
+      }
+      
       .share-button {
-        font-size: 18px;
         padding: 12px 20px;
+        font-size: 1rem;
+      }
+      
+      #qrcode {
+        width: 150px;
+        height: 150px;
       }
     }
   </style>
 </head>
 <body>
+  <!-- Notification -->
+  <div class="notification" id="notification"></div>
+  
+  <!-- Main Container -->
   <div class="share-container">
-    <h1><i class="fas fa-share-alt"></i> Invite people</h1>
-    <button class="share-button" id="shareBtn">
-      <i class="fas fa-link"></i> Share link
-    </button><br>
-    <button class="share-button" id="qrBtn">
-      <i class="fas fa-qrcode"></i> Share MOBE Code
-    </button>
-    <div class="qrcode-wrapper" id="qrcode-wrapper">
-      <div id="qrcode"></div>
-      <img src="https://assets.onecompiler.app/42swzbgaa/432b6dfa2/1000048868.png" alt="Center Logo">
+    <div class="share-header">
+      <h1 class="share-title"><i class="fas fa-share-alt"></i> MOBE INVITE</h1>
+      <p class="share-subtitle">Invite friends to join MOBE WINTERLAND</p>
+    </div>
+    
+    <div class="button-group">
+      <button class="share-button btn-primary" id="shareBtn">
+        <i class="fas fa-share"></i> Share Invite Link
+      </button>
+      <button class="share-button btn-secondary" id="qrBtn">
+        <i class="fas fa-qrcode"></i> Generate QR Code
+      </button>
+      <button class="share-button btn-tertiary" id="copyBtn">
+        <i class="fas fa-copy"></i> Copy Direct Link
+      </button>
+    </div>
+    
+    <!-- QR Code Section -->
+    <div class="qrcode-section" id="qrcodeSection">
+      <div class="qrcode-wrapper">
+        <div id="qrcode"></div>
+        <img src="https://assets.onecompiler.app/42swzbgaa/432b6dfa2/1000048868.png" alt="MOBE Logo">
+      </div>
+      <p>Scan this code to join MOBE</p>
+    </div>
+    
+    <!-- Link Section -->
+    <div class="link-section" id="linkSection">
+      <div class="link-container">
+        <input type="text" id="shareLink" readonly>
+        <button class="copy-btn" id="copyLinkBtn"><i class="fas fa-copy"></i></button>
+      </div>
+      <p style="margin-top: 10px; font-size: 0.9rem;">Link expires in 24 hours</p>
+    </div>
+    
+    <!-- Stats Section -->
+    <div class="stats-section">
+      <div class="stat-item">
+        <div class="stat-value" id="invitesSent">0</div>
+        <div class="stat-label">Invites Sent</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="playersJoined">0</div>
+        <div class="stat-label">Players Joined</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="linkExpires">24h</div>
+        <div class="stat-label">Link Expires</div>
+      </div>
     </div>
   </div>
 
+  
   <script>
+    // DOM Elements
+    const notificationEl = document.getElementById('notification');
+    const shareBtn = document.getElementById('shareBtn');
+    const qrBtn = document.getElementById('qrBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
+    const qrcodeSection = document.getElementById('qrcodeSection');
+    const linkSection = document.getElementById('linkSection');
+    const shareLinkEl = document.getElementById('shareLink');
+    const invitesSentEl = document.getElementById('invitesSent');
+    const playersJoinedEl = document.getElementById('playersJoined');
+    const linkExpiresEl = document.getElementById('linkExpires');
+    
+    // App Data
+    let invitesSent = localStorage.getItem('invitesSent') || 0;
+    let playersJoined = localStorage.getItem('playersJoined') || 0;
     const baseLink = "https://mobe-link-share.web.app/";
-
-    // লিঙ্কের সাথে টাইমস্ট্যাম্প যোগ করা
-    function generateLinkWithExpireTime() {
-      const expireTime = new Date().toISOString(); // বর্তমান সময় ISO ফর্ম্যাটে
-      return `${baseLink}?expireTime=${encodeURIComponent(expireTime)}`;
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load stats
+      updateStats();
+      
+      // Set up event listeners
+      setupEventListeners();
+      
+      // Try to play background music
+      const bgMusic = document.getElementById('bgMusic');
+      bgMusic.volume = 0.3;
+      document.addEventListener('click', () => {
+        bgMusic.play().catch(e => console.log("Autoplay prevented:", e));
+      }, { once: true });
+    });
+    
+    function setupEventListeners() {
+      // Share Button
+      shareBtn.addEventListener('click', shareInviteLink);
+      
+      // QR Code Button
+      qrBtn.addEventListener('click', toggleQRCode);
+      
+      // Copy Button
+      copyBtn.addEventListener('click', copyDirectLink);
+      
+      // Copy Link Button
+      copyLinkBtn.addEventListener('click', copyToClipboard);
     }
-
-    // শেয়ার বাটনে ক্লিক ইভেন্ট
-    document.getElementById('shareBtn').addEventListener('click', () => {
-      const linkWithExpireTime = generateLinkWithExpireTime();
-
+    
+    function generateInviteLink() {
+      const timestamp = Date.now();
+      const expireTime = new Date(timestamp + 24 * 60 * 60 * 1000).toISOString();
+      return `${baseLink}?ref=mobe_invite&expire=${encodeURIComponent(expireTime)}&sender=${generateUniqueId()}`;
+    }
+    
+    function generateUniqueId() {
+      return 'xxxx-xxxx-xxxx'.replace(/[x]/g, () => {
+        return Math.floor(Math.random() * 16).toString(16);
+      });
+    }
+    
+    function shareInviteLink() {
+      const inviteLink = generateInviteLink();
+      
       if (navigator.share) {
         navigator.share({
-          title: 'MOBE LINK SHARE',
-          text: 'Link with MOBE WORLD➤',
-          url: linkWithExpireTime,
-        })
-          .then(() => console.log('Link shared successfully!'))
-          .catch((error) => console.error('Error sharing:', error));
+          title: 'Join MOBE WINTERLAND',
+          text: 'I invite you to play MOBE WINTERLAND - the ultimate battle arena!',
+          url: inviteLink
+        }).then(() => {
+          // Share successful
+          incrementInvitesSent();
+          showNotification('Invite shared successfully!');
+        }).catch(err => {
+          console.log('Error sharing:', err);
+          fallbackShare(inviteLink);
+        });
       } else {
-        alert('Sharing is not supported on this device.');
+        fallbackShare(inviteLink);
       }
-    });
-
-    // QR কোড তৈরি ও দেখানো
-    document.getElementById('qrBtn').addEventListener('click', () => {
-      const linkWithExpireTime = generateLinkWithExpireTime();
-
-      const qrcodeContainer = document.getElementById('qrcode');
-      const qrcodeWrapper = document.getElementById('qrcode-wrapper');
-      qrcodeContainer.innerHTML = ""; // পুরনো কোড মুছে ফেলুন
-      new QRCode(qrcodeContainer, linkWithExpireTime);
-
-      // QR কোড প্রদর্শন/লুকানো
-      if (qrcodeWrapper.style.display === "none") {
-        qrcodeWrapper.style.display = "block";
+    }
+    
+    function fallbackShare(link) {
+      // Show link section
+      shareLinkEl.value = link;
+      linkSection.style.display = 'block';
+      qrcodeSection.style.display = 'none';
+      
+      showNotification('Link generated - copy and share it manually');
+    }
+    
+    function toggleQRCode() {
+      const inviteLink = generateInviteLink();
+      
+      if (qrcodeSection.style.display === 'block') {
+        qrcodeSection.style.display = 'none';
       } else {
-        qrcodeWrapper.style.display = "none";
+        // Generate QR Code
+        const qrcodeEl = document.getElementById('qrcode');
+        qrcodeEl.innerHTML = '';
+        new QRCode(qrcodeEl, {
+          text: inviteLink,
+          width: 200,
+          height: 200,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        qrcodeSection.style.display = 'block';
+        linkSection.style.display = 'none';
+        
+        incrementInvitesSent();
+        showNotification('QR Code generated');
       }
-    });
+    }
+    
+    function copyDirectLink() {
+      const inviteLink = generateInviteLink();
+      copyToClipboard(inviteLink);
+      incrementInvitesSent();
+    }
+    
+    function copyToClipboard(text = null) {
+      const textToCopy = text || shareLinkEl.value;
+      
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showNotification('Link copied to clipboard!');
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+        showNotification('Failed to copy link', true);
+      });
+    }
+    
+    function incrementInvitesSent() {
+      invitesSent++;
+      localStorage.setItem('invitesSent', invitesSent);
+      updateStats();
+    }
+    
+    function updateStats() {
+      invitesSentEl.textContent = invitesSent;
+      playersJoinedEl.textContent = playersJoined;
+      
+      // Simulate some players joining (in a real app, this would come from your database)
+      if (invitesSent > 0 && playersJoined < invitesSent) {
+        setTimeout(() => {
+          playersJoined = Math.min(playersJoined + Math.floor(Math.random() * 3), invitesSent);
+          localStorage.setItem('playersJoined', playersJoined);
+          playersJoinedEl.textContent = playersJoined;
+        }, 2000);
+      }
+    }
+    
+    function showNotification(message, isError = false) {
+      notificationEl.textContent = message;
+      notificationEl.style.backgroundColor = isError ? 'rgba(255, 0, 0, 0.9)' : 'rgba(0, 255, 205, 0.9)';
+      notificationEl.style.color = isError ? 'white' : 'var(--dark)';
+      notificationEl.style.display = 'block';
+      
+      setTimeout(() => {
+        notificationEl.style.display = 'none';
+      }, 3000);
+    }
+    
+    // Check for referral parameters in URL
+    function checkReferral() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('ref') && params.get('ref') === 'mobe_invite') {
+        // This is a referral link
+        playersJoined++;
+        localStorage.setItem('playersJoined', playersJoined);
+        updateStats();
+        
+        // Clean the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+    
+    // Check for referrals when page loads
+    checkReferral();
   </script>
 </body>
 </html>
