@@ -161,8 +161,8 @@
     
     .qrcode-wrapper img {
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 59%;
+      left: 49%;
       transform: translate(-50%, -50%);
       width: 40px;
       height: 40px;
@@ -191,6 +191,7 @@
       border: none;
       color: white;
       font-family: 'Orbitron', sans-serif;
+      outline: none;
     }
     
     .copy-btn {
@@ -200,6 +201,9 @@
       border: none;
       cursor: pointer;
       transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .copy-btn:hover {
@@ -265,8 +269,8 @@
       }
       
       #qrcode {
-        width: 150px;
-        height: 150px;
+        width: 200px;
+        height: 200px;
       }
     }
   </style>
@@ -329,7 +333,6 @@
     </div>
   </div>
 
-  
   <script>
     // DOM Elements
     const notificationEl = document.getElementById('notification');
@@ -348,6 +351,7 @@
     let invitesSent = localStorage.getItem('invitesSent') || 0;
     let playersJoined = localStorage.getItem('playersJoined') || 0;
     const baseLink = "https://mobe-link-share.web.app/";
+    let currentInviteLink = "";
     
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
@@ -356,13 +360,6 @@
       
       // Set up event listeners
       setupEventListeners();
-      
-      // Try to play background music
-      const bgMusic = document.getElementById('bgMusic');
-      bgMusic.volume = 0.3;
-      document.addEventListener('click', () => {
-        bgMusic.play().catch(e => console.log("Autoplay prevented:", e));
-      }, { once: true });
     });
     
     function setupEventListeners() {
@@ -376,13 +373,20 @@
       copyBtn.addEventListener('click', copyDirectLink);
       
       // Copy Link Button
-      copyLinkBtn.addEventListener('click', copyToClipboard);
+      copyLinkBtn.addEventListener('click', () => {
+        if (currentInviteLink) {
+          copyToClipboard(currentInviteLink);
+        } else {
+          copyToClipboard(generateInviteLink());
+        }
+      });
     }
     
     function generateInviteLink() {
       const timestamp = Date.now();
       const expireTime = new Date(timestamp + 24 * 60 * 60 * 1000).toISOString();
-      return `${baseLink}?ref=mobe_invite&expire=${encodeURIComponent(expireTime)}&sender=${generateUniqueId()}`;
+      currentInviteLink = `${baseLink}?ref=mobe_invite&expire=${encodeURIComponent(expireTime)}&sender=${generateUniqueId()}`;
+      return currentInviteLink;
     }
     
     function generateUniqueId() {
@@ -453,15 +457,27 @@
       incrementInvitesSent();
     }
     
-    function copyToClipboard(text = null) {
-      const textToCopy = text || shareLinkEl.value;
+    function copyToClipboard(text) {
+      // Create a temporary textarea element
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';  // Prevent scrolling to bottom
+      document.body.appendChild(textarea);
+      textarea.select();
       
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        showNotification('Link copied to clipboard!');
-      }).catch(err => {
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          showNotification('Link copied to clipboard!');
+        } else {
+          showNotification('Failed to copy link', true);
+        }
+      } catch (err) {
+        showNotification('Error copying link', true);
         console.error('Could not copy text: ', err);
-        showNotification('Failed to copy link', true);
-      });
+      }
+      
+      document.body.removeChild(textarea);
     }
     
     function incrementInvitesSent() {
