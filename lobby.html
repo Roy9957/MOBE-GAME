@@ -3,239 +3,306 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOBE LOBBY</title>
+  <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
   
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-    
-    <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
-    <style>
-    
-        .ping-container {
-            position: fixed;
-            top: 10px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            background-color: rgba(0, 219, 255, 0);
-            padding: 5px 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(168, 53, 53, 0);
-        }
-        .ping-icon {
-            width: 25px;
-            height: 30px;
-            margin-right: 10px;
-      
-            background: url('wifi-icon.png') no-repeat center;
-            background-size: contain;
-        }
-        .ping-value {
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .ping-value.green {
-            color: lime;
-        }
-        .ping-value.yellow {
-            color: yellow;
-        }
-        .ping-value.red {
-            color: red;
-        }
-        .no-connection {
-            color: red;
-        }
-    </style>
-</head>
-<body>
-    <!-- Ping Display Container -->
-    <div class="ping-container">
-        <div class="ping-icon"></div>
-        <div class="ping-status">
-            <span id="status" class="ping-value">Checking...</span>
-            <span id="ping" class="ping-value"></span>
-        </div>
-    </div>
-
-    <script>
-      async function checkConnection() {
-        const url = "https://jsonplaceholder.typicode.com/posts/1"; // Reliable test URL
-        const startTime = Date.now();
-    
-        try {
-          const response = await fetch(url, { method: 'GET', cache: 'no-store' });
-          if (response.ok) {
-            const pingTime = Date.now() - startTime; // Calculate ping
-            const statusElement = document.getElementById('status');
-            const pingElement = document.getElementById('ping');
-
-            // Set status and ping value
-            statusElement.textContent = "";
-            pingElement.textContent = `  ${pingTime} ms`;
-
-            // Change color based on ping value
-            pingElement.classList.remove('green', 'yellow', 'red');
-            if (pingTime <= 150) {
-                pingElement.classList.add('green');
-            } else if (pingTime <= 999) {
-                pingElement.classList.add('yellow');
-            } else {
-                pingElement.classList.add('red');
-            }
-          } else {
-            throw new Error('No response');
-          }
-        } catch (error) {
-          const statusElement = document.getElementById('status');
-          const pingElement = document.getElementById('ping');
-
-          // Set status and ping value for no connection
-          statusElement.textContent = "No Internet";
-          statusElement.classList.remove('ping-value');
-          statusElement.classList.add('no-connection');
-          pingElement.textContent = "";
-        }
-      }
-    
-      setInterval(checkConnection, 5000);
-      checkConnection();
-    </script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   
-  
-  
-  
-  
-  
-  <title>Mobe Lobby</title>
   <style>
+    :root {
+      --primary: #00FFCD;
+      --secondary: #0099FF;
+      --accent: #FF00AA;
+      --dark: #0A0A2A;
+      --light: #E0F8FF;
+      --glow: 0 0 15px currentColor;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
-     
-            background-image: url('https://assets.onecompiler.app/42swzbgaa/432bwfgef/1000048870.png'); /* ব্যাকগ্রাউন্ড ইমেজ */
-            background-size: cover; /* ইমেজ পুরো স্ক্রিন জুড়ে রাখার জন্য */
-            background-repeat: no-repeat; /* ইমেজ রিপিট বন্ধ করতে */
-            background-attachment: fixed; /* স্ক্রল করলে ব্যাকগ্রাউন্ড স্থির থাকবে */
-        
-      
-      
-      
-      
-      
-      
-      
-      font-family: 'Roboto', sans-serif;
-  
-      color: #fff;
-
-
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: var(--light);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    /* Ping Display */
+    .ping-container {
+      position: fixed;
+      top: 10px;
+      right: 10px;
       display: flex;
-      justify-content: center;
-    
-      height: 100vh;
-
+      align-items: center;
+      background-color: rgba(10, 10, 42, 0.8);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 10px rgba(0, 255, 205, 0.3);
+      z-index: 100;
+      backdrop-filter: blur(5px);
     }
     
-    a{
-      cursor:default;
+    .ping-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+      color: var(--primary);
     }
+    
+    .ping-value {
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 4px;
+    }
+    
+    .ping-value.excellent {
+      color: lime;
+    }
+    
+    .ping-value.good {
+      color: #00FFCD;
+    }
+    
+    .ping-value.fair {
+      color: yellow;
+    }
+    
+    .ping-value.poor {
+      color: orange;
+    }
+    
+    .ping-value.bad {
+      color: red;
+    }
+    
+    .no-connection {
+      color: red;
+    }
+    
+    /* Main Container */
     .lobby-container {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+    
+    /* Header */
+    .lobby-header {
       text-align: center;
-      animation: fadeIn 1s ease-in-out;
-    }
-    .leaderboard {
-      background-color: rgba(241, 0, 0, 1);
-      padding: 30px;
-      border-radius: 15px;
-      max-width: 350px;
-      width: 100%;
-      box-shadow: 0 0 15px rgba(194, 26, 26, 1);
-      animation: slideIn 1.2s ease-out;
-    }
-    .leaderboard b {
-      font-size: 22px;
       margin-bottom: 20px;
-      font-weight: 600;
-      text-transform: uppercase;
+    }
+    
+    .lobby-title {
+      font-size: 2rem;
+      color: var(--primary);
+      text-shadow: 0 0 10px var(--primary);
+      margin-bottom: 5px;
       letter-spacing: 2px;
     }
-    .leaderboard div {
-      font-size: 18px;
-      margin: 10px 0;
-      padding: 5px 10px;
-      border-radius: 5px;
-      background-color: rgba(255, 0, 0, 1);
-      transition: all 0.3s ease;
+    
+    .lobby-subtitle {
+      font-size: 1rem;
+      color: var(--secondary);
+      letter-spacing: 1px;
     }
-    .leaderboard div:hover {
-      background-color: rgba(255, 0, 0, 1);
-      transform: scale(1.05);
-    }
-    button {
-      margin-top: 30px;
-      padding: 12px 25px;
-      background: #0099FF;
-      border: none;
-      color: white;
-      font-size: 18px;
+    
+    /* Leaderboard */
+    .leaderboard {
+      background-color: rgba(10, 10, 42, 0.8);
+      padding: 15px;
       border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(210, 22, 22, 1);
-      transition: background 0.3s ease, transform 0.2s ease;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid var(--secondary);
+      box-shadow: 0 0 15px rgba(0, 153, 255, 0.3);
+      backdrop-filter: blur(5px);
+      margin-bottom: 20px;
     }
-    button:hover {
-      background: #00FFBD;
-      transform: scale(1.05);
+    
+    .leaderboard-title {
+      font-size: 1.2rem;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
     }
-    button:active {
-      transform: scale(0.98);
+    
+    .player-list {
+      list-style: none;
     }
-    .pagination-btns button {
-      margin: 5px;
-      padding: 10px 15px;
-      background-color: #00FFCD;
-      border: none;
-      color: white;
-      font-size: 16px;
-      
+    
+    .player-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      margin: 5px 0;
+      background-color: rgba(0, 0, 0, 0.3);
       border-radius: 5px;
-      transition: background 0.3s ease, transform 0.2s ease;
+      border-left: 2px solid var(--primary);
     }
-    .pagination-btns button:hover {
-      background-color: #00FFCD;
-      transform: scale(1.1);
+    
+    .player-name {
+      font-size: 0.9rem;
+      font-weight: bold;
     }
-    .pagination-btns button:active {
-      transform: scale(0.95);
+    
+    .player-score {
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 0.9rem;
     }
-    /* Animations */
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
+    
+    .player-badge {
+      margin-left: 5px;
+      font-size: 0.8rem;
     }
-    @keyframes slideIn {
-      0% { transform: translateY(-30px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+    
+    /* Buttons */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: var(--dark);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(45deg, var(--secondary), var(--accent));
+      color: white;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    /* Social Icons */
+    .social-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    
+    .social-icon {
+      color: var(--light);
+      font-size: 1.5rem;
+      transition: all 0.2s ease;
+    }
+    
+    .social-icon:hover {
+      color: var(--primary);
+      transform: translateY(-3px);
+    }
+    
+    /* Loading State */
+    .loading-message {
+      text-align: center;
+      padding: 20px;
+      color: var(--secondary);
+    }
+    
+    /* Responsive */
+    @media (min-width: 768px) {
+      .lobby-title {
+        font-size: 2.5rem;
+      }
+      
+      .action-buttons {
+        flex-direction: row;
+        justify-content: center;
+      }
+      
+      .btn {
+        padding: 12px 25px;
+      }
     }
   </style>
 </head>
 <body>
-
-  <div class="lobby-container">
-    <div class="leaderboard" id="leaderboard">
-      <b>WELLCOME TO MOBE WINTERLAND</b>
-      <!-- Player data will be shown here -->
-    </div>
-
-    <!-- Buttons for Multiplayer and Training -->
-    <button id="playMultiplayerBtn">MOBE AND MOBE</button>
-    <button id="trainingBtn">CREATE MOBE SKILL</button>
+  <!-- Ping Display -->
+  <div class="ping-container">
+    <i class="fas fa-wifi ping-icon"></i>
+    <span id="pingStatus" class="no-connection">Checking...</span>
+    <span id="pingValue" class="ping-value"></span>
   </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+  
+  <!-- Main Content -->
+  <div class="lobby-container">
+    <div class="lobby-header">
+      <h1 class="lobby-title">MOBE</h1>
+      <p class="lobby-subtitle">BATTLE ARENA</p>
+    </div>
     
+    <div class="leaderboard">
+      <h2 class="leaderboard-title" id="leaderboardTitle">LOADING PLAYERS...</h2>
+      <ul class="player-list" id="playerList">
+        <li class="loading-message">Connecting to database...</li>
+      </ul>
+    </div>
+    
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="playMultiplayerBtn">
+        <i class="fas fa-users"></i> MOBE & MOBE
+      </button>
+      <button class="btn btn-secondary" id="trainingBtn">
+        <i class="fas fa-dumbbell"></i> CREATE SKILL
+      </button>
+    </div>
+    
+    <div class="social-container">
+      <a href="https://roy9957.github.io/MOBE-SPACE-JOURNEY/" target="_blank" class="social-icon">
+        <i class="fas fa-globe"></i>
+      </a>
+      <a href="https://discord.gg/cGh65u7FN3" target="_blank" class="social-icon">
+        <i class="fab fa-discord"></i>
+      </a>
+      <a href="share.html" class="social-icon">
+        <i class="fas fa-share-alt"></i>
+      </a>
+    </div>
+  </div>
+  
+  <!-- Firebase & Game SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  
+  <script>
     // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCrQJRwfTV8a1BIwMQexWxsHi2OKyTj8hg",
@@ -248,208 +315,171 @@
     };
     
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
     
-    // Create new player (this can be done dynamically)
-    function addNewPlayer(playerId, playerScore) {
-      const newPlayerRef = push(ref(db, 'players'));  // Create a new reference under 'players'
-      set(newPlayerRef, {
-        id: playerId,
-        score: playerScore
-      });
-    }
-
-    // Pagination Variables
-    let currentPage = 1;
-    const playersPerPage = 5; // Number of players per page
-
-    // Get leaderboard element
-    const leaderboardDiv = document.getElementById('leaderboard');
+    // Server Configuration
+    const SERVER_URL = "https://game-server-five.vercel.app";
+    const PING_INTERVAL = 5000; // 5 seconds
     
-    // Get Players Data from Firebase and Update Leaderboard
-    onValue(ref(db, 'players'), (snapshot) => {
-      const players = snapshot.val() || {};
-
-      // If no players, show a message that no players are available yet
-      if (Object.keys(players).length === 0) {
-        leaderboardDiv.innerHTML = "<b>MOBE OFFLINE</b><br>Mobe players offline😴";
-      } else {
-        updateLeaderboard(players);
-      }
-    });
+    // DOM Elements
+    const pingStatusEl = document.getElementById('pingStatus');
+    const pingValueEl = document.getElementById('pingValue');
+    const leaderboardTitleEl = document.getElementById('leaderboardTitle');
+    const playerListEl = document.getElementById('playerList');
+    const playMultiplayerBtn = document.getElementById('playMultiplayerBtn');
+    const trainingBtn = document.getElementById('trainingBtn');
     
-    // Update the leaderboard with pagination and achievements
-    function updateLeaderboard(players) {
-      const sortedPlayers = Object.values(players).sort((a, b) => b.score - a.score); // Sort players by score
-      const totalPages = Math.ceil(sortedPlayers.length / playersPerPage); // Calculate total pages
-
-      // Get players for the current page
-      const startIndex = (currentPage - 1) * playersPerPage;
-      const currentPlayers = sortedPlayers.slice(startIndex, startIndex + playersPerPage);
-
-      // Display players for the current page
-      leaderboardDiv.innerHTML = "<b>MOBE ONLINES</b><br>";
-      currentPlayers.forEach(player => {
-        let badge = '';
-        
-               if (player.score >= 500) { 
-         badge ='<img style="color:v;height:35px" src="v.png" alt="V batch">';}  
-        
-    else if (player.score >= 300) { 
-         badge ='<span style="color:king;">👑</span>';}
-         
-      else if (player.score >= 200) {
-          badge = '<span style="color: gold;">🏆</span>'; // Gold Badge for score 1000 or more
-        } else if (player.score >= 150) {
-          badge = '<span style="color: silver;">🥈</span>'; // Silver Badge for score 500 or more
-        } else if (player.score >= 100) {
-          badge = '<span style="color: bronze;">🥉</span>'; // Bronze Badge for score 100 or more
-        }
-
-
-        leaderboardDiv.innerHTML += `<div>${player.id}: ${player.score} ${badge}</div>`;
-      });
-
-      // Display pagination controls
-      leaderboardDiv.innerHTML += '<div class="pagination-btns">';
-      if (currentPage > 1) {
-        leaderboardDiv.innerHTML += `<button onclick="changePage(${currentPage - 1})">Previous</button>`;
-      }
-      if (currentPage < totalPages) {
-        leaderboardDiv.innerHTML += `<button onclick="changePage(${currentPage + 1})">Next</button>`;
-      }
-      leaderboardDiv.innerHTML += '</div>';
-    }
-
-    // Change page function
-    function changePage(page) {
-      currentPage = page;
-      onValue(ref(db, 'players'), (snapshot) => {
-        const players = snapshot.val() || {};
-        updateLeaderboard(players);
-      });
-    }
-
-    // Play Multiplayer Button Functionality
-    document.getElementById("playMultiplayerBtn").addEventListener("click", function() {
-      alert("Check tips:\n*Check Internet connection.\ncheck internet ping.\nPlay tips:\n*Touch to move\n*Tap to fire\n*Always Check your health\n*Destroy Enemies");
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Start checking server connection
+      checkServerConnection();
+      setInterval(checkServerConnection, PING_INTERVAL);
       
-      // Wait 500ms after alert and then redirect to game.html
-      setTimeout(() => {
-        window.location.href = "game.html"; 
-      }, 500);
+      // Load players from Firebase
+      loadPlayers();
+      
+      // Button event listeners
+      playMultiplayerBtn.addEventListener('click', () => {
+        alert("GAME TIPS:\n\n• Check your internet connection\n• Monitor your ping for best performance\n• Touch to move\n• Tap to fire\n• Always watch your health\n• Destroy all enemies!");
+        setTimeout(() => {
+          window.location.href = "game.html";
+        }, 500);
+      });
+      
+      trainingBtn.addEventListener('click', () => {
+        window.location.href = "train.html";
+      });
     });
-
-    // Training Button Functionality
-    document.getElementById("trainingBtn").addEventListener("click", function() {
-      window.location.href = "train.html"; // Redirect to train.html
-    });
-
-  </script>
-  
-  
-  <audio autoplay loop>
-    <source src="ss.mp3" type="audio/mp3">
-    আপনার ব্রাউজার অডিও উপাদান সমর্থন করে না।
-  </audio>
-  
-  
-  
-  
-  
-
-  
-  
-  <footer>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-
-    .icon-container {
- position: fixed;
- display: flex;
-    margin-top: 700px;
-margin-left: -210px;
-      justify-content: center;
-      gap: 40px;
-    }
-    .icon {
-      text-decoration: none;
-      color: #FFFFFF;
-      font-size: 24px;
-      transition: color 0.3s ease;
     
-    }
-    .icon:hover {
-      color: #0025FF;
-    }
-    
-    
-    
-  </style>
-
-<div class="icon-container">
-  <a href="https://roy9957.github.io/MOBE-SPACE-JOURNEY/" target="_blank" class="icon"><i class="fas fa-globe"></i></a>
-  <a href="https://discord.gg/cGh65u7FN3" target="_blank" class="icon"><i class="fab fa-discord"></i></a>
-  <a href="share.html" class="icon" onclick="sharePage()"><i class="fas fa-share-alt"></i></a>
-</div>
-  </footer>
-  
-    <style>
+    // Check server connection and measure ping
+    async function checkServerConnection() {
+      const startTime = Date.now();
+      
+      try {
+        const response = await fetch(`${SERVER_URL}/api/health`, {
+          method: 'GET',
+          cache: 'no-store'
+        });
         
-
-        .ghost {
-            position: absolute;
-            top: 20%;
-            left:50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            height: 200px;
-            background-image: url('go.png'); /* তোমার স্পুকি ইমেজ */
-            background-size: cover;
-            opacity: 0;
-            animation: ghostFade 5s infinite;
+        if (response.ok) {
+          const ping = Date.now() - startTime;
+          updatePingDisplay(ping);
+          return true;
+        } else {
+          throw new Error('Server error');
         }
-
-        @keyframes ghostFade {
-            0% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(0.5);
-            }
-            25% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            50% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            75% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.5);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.5);
-            }
+      } catch (error) {
+        console.error("Connection error:", error);
+        pingStatusEl.textContent = "OFFLINE";
+        pingStatusEl.className = "no-connection";
+        pingValueEl.textContent = "";
+        return false;
+      }
+    }
+    
+    // Update ping display with appropriate styling
+    function updatePingDisplay(ping) {
+      pingStatusEl.textContent = "ONLINE";
+      pingValueEl.textContent = `${ping}ms`;
+      
+      // Remove all classes
+      pingStatusEl.className = "";
+      pingValueEl.className = "ping-value";
+      
+      // Add appropriate class based on ping
+      if (ping <= 100) {
+        pingValueEl.classList.add('excellent');
+      } else if (ping <= 200) {
+        pingValueEl.classList.add('good');
+      } else if (ping <= 350) {
+        pingValueEl.classList.add('fair');
+      } else if (ping <= 500) {
+        pingValueEl.classList.add('poor');
+      } else {
+        pingValueEl.classList.add('bad');
+      }
+    }
+    
+    // Load players from Firebase
+    function loadPlayers() {
+      const playersRef = database.ref('players');
+      
+      playersRef.on('value', (snapshot) => {
+        const playersData = snapshot.val();
+        updateLeaderboard(playersData);
+      }, (error) => {
+        console.error("Firebase error:", error);
+        playerListEl.innerHTML = '<li class="loading-message">Error loading players</li>';
+      });
+    }
+    
+    // Update leaderboard with real players
+    function updateLeaderboard(playersData) {
+      if (!playersData) {
+        leaderboardTitleEl.textContent = "NO PLAYERS ONLINE";
+        playerListEl.innerHTML = '<li class="loading-message">Waiting for players to join...</li>';
+        return;
+      }
+      
+      // Convert players object to array and sort by score
+      const playersArray = Object.values(playersData);
+      playersArray.sort((a, b) => b.score - a.score);
+      
+      leaderboardTitleEl.textContent = "ONLINE PLAYERS";
+      playerListEl.innerHTML = "";
+      
+      if (playersArray.length === 0) {
+        playerListEl.innerHTML = '<li class="loading-message">No active players</li>';
+        return;
+      }
+      
+      playersArray.forEach((player, index) => {
+        const playerEl = document.createElement('li');
+        playerEl.className = 'player-item';
+        
+        // Determine badge based on score
+        let badge = '';
+        if (player.score >= 500) {
+          badge = '<span class="player-badge" style="color: #FFD700;">👑</span>';
+        } else if (player.score >= 300) {
+          badge = '<span class="player-badge" style="color: #C0C0C0;">🥈</span>';
+        } else if (player.score >= 100) {
+          badge = '<span class="player-badge" style="color: #CD7F32;">🥉</span>';
         }
-    </style>
-
-
-    <div class="ghost"></div>
-
-
-  
-  
-
+        
+        playerEl.innerHTML = `
+          <span class="player-name">${player.id || 'Anonymous'}</span>
+          <div>
+            <span class="player-score">${player.score || 0}</span>
+            ${badge}
+          </div>
+        `;
+        
+        playerListEl.appendChild(playerEl);
+      });
+    }
+    
+    // Share function
+    function sharePage() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'MOBE WINTERLAND',
+          text: 'Join me in MOBE WINTERLAND - the ultimate battle arena!',
+          url: window.location.href
+        }).catch(err => {
+          console.log('Error sharing:', err);
+          fallbackShare();
+        });
+      } else {
+        fallbackShare();
+      }
+    }
+    
+    function fallbackShare() {
+      const shareUrl = window.location.href;
+      prompt("Copy this link to share:", shareUrl);
+    }
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-  
