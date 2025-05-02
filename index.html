@@ -314,7 +314,15 @@
     <script>
         class GameLoader {
             constructor() {
-                this.serverUrl = 'https://game-server-five.vercel.app';
+                // Updated server configuration
+                this.serverConfig = {
+                    baseUrl: 'https://game-server-five.vercel.app',
+                    endpoints: {
+                        health: '/api/health',
+                        gameData: '/load-game'
+                    }
+                };
+                
                 this.elements = {
                     connectionStatus: document.getElementById('connectionStatus'),
                     connectionQuality: document.getElementById('connectionQuality'),
@@ -371,57 +379,62 @@
                         throw new Error('No internet connection');
                     }
                     
-                    // Measure latency
+                    // First check health endpoint
+                    const healthUrl = `${this.serverConfig.baseUrl}${this.serverConfig.endpoints.health}`;
                     const startTime = performance.now();
-                    const response = await fetch(`${this.serverUrl}/api/health`, {
+                    
+                    const healthResponse = await fetch(healthUrl, {
                         method: 'GET',
                         headers: { 'Content-Type': 'application/json' }
                     });
                     
-                    if (!response.ok) {
-                        throw new Error(`Server error: ${response.status}`);
+                    if (!healthResponse.ok) {
+                        throw new Error(`Server error: ${healthResponse.status}`);
                     }
                     
                     const endTime = performance.now();
                     const latency = endTime - startTime;
-                    
-                    // Calculate connection quality (1-5)
                     this.connectionSpeed = this.calculateConnectionSpeed(latency);
                     this.updateConnectionQuality(this.connectionSpeed);
                     
-                    const data = await response.json();
+                    // Then load game data
+                    const gameDataUrl = `${this.serverConfig.baseUrl}${this.serverConfig.endpoints.gameData}`;
+                    const gameResponse = await fetch(gameDataUrl, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    if (!gameResponse.ok) {
+                        throw new Error(`Game data error: ${gameResponse.status}`);
+                    }
+                    
+                    const gameData = await gameResponse.json();
                     this.updateConnectionStatus('Server connected');
                     this.updateLoadingMessage('Authenticating session...');
-                    
-                    // Show progress bar
                     this.elements.progressContainer.style.display = 'block';
                     
-                    // Start the loading process
-                    await this.simulateLoading(data);
+                    await this.simulateLoading(gameData);
                     
                 } catch (error) {
                     console.error('Connection error:', error);
                     
                     if (this.attemptCount < this.maxAttempts) {
-                        // Exponential backoff for retries
                         const delay = Math.min(1000 * Math.pow(2, this.attemptCount), 8000);
                         this.updateLoadingMessage(`Retrying in ${delay/1000} seconds...`);
-                        
                         await new Promise(resolve => setTimeout(resolve, delay));
                         return this.checkServerConnection();
                     }
                     
-                    // All attempts failed
                     this.handleConnectionError(error);
                 }
             }
             
             calculateConnectionSpeed(latency) {
-                if (latency < 100) return 5;    // Excellent
-                if (latency < 300) return 4;   // Good
-                if (latency < 600) return 3;    // Average
-                if (latency < 1000) return 2;   // Poor
-                return 1;                       // Very poor
+                if (latency < 100) return 5;
+                if (latency < 300) return 4;
+                if (latency < 600) return 3;
+                if (latency < 1000) return 2;
+                return 1;
             }
             
             updateConnectionQuality(level) {
@@ -439,19 +452,13 @@
                     const progress = (i / totalSteps) * 100;
                     this.setProgress(progress);
                     
-                    // Update loading message based on progress
                     const phaseIndex = Math.floor(progress / (100 / this.loadingPhases.length));
                     this.updateLoadingMessage(this.loadingPhases[phaseIndex]);
-                    
-                    // Simulate loading delay based on connection speed
                     await new Promise(resolve => setTimeout(resolve, baseDelay));
                 }
                 
-                // Loading complete
                 this.updateLoadingMessage('Launching game...');
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Redirect to game (replace with your actual game URL)
                 window.location.href = 'lobby.html';
             }
             
