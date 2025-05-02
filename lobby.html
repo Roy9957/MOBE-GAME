@@ -237,6 +237,136 @@
       color: var(--secondary);
     }
     
+    /* Matchmaking Overlay */
+    .matchmaking-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .matchmaking-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .matchmaking-container {
+      background: linear-gradient(135deg, #0f0c29, #302b63);
+      padding: 30px;
+      border-radius: 15px;
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 30px rgba(0, 255, 205, 0.5);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    
+    .matchmaking-title {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+      text-shadow: var(--glow);
+    }
+    
+    .matchmaking-status {
+      font-size: 1rem;
+      color: var(--light);
+      margin-bottom: 15px;
+      min-height: 20px;
+    }
+    
+    .matchmaking-timer {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin: 20px 0;
+      text-shadow: 0 0 10px var(--primary);
+    }
+    
+    .connection-quality {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+    
+    .connection-bar {
+      height: 100%;
+      background: linear-gradient(90deg, red, yellow, lime);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    
+    .cancel-btn {
+      background: transparent;
+      color: var(--light);
+      border: 1px solid var(--accent);
+      padding: 10px 25px;
+      border-radius: 5px;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s ease;
+    }
+    
+    .cancel-btn:hover {
+      background: rgba(255, 0, 170, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .server-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+      font-size: 0.8rem;
+    }
+    
+    .server-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .server-status-dot.excellent {
+      background: lime;
+      box-shadow: 0 0 10px lime;
+    }
+    
+    .server-status-dot.good {
+      background: #00FFCD;
+      box-shadow: 0 0 10px #00FFCD;
+    }
+    
+    .server-status-dot.fair {
+      background: yellow;
+      box-shadow: 0 0 10px yellow;
+    }
+    
+    .server-status-dot.poor {
+      background: orange;
+      box-shadow: 0 0 10px orange;
+    }
+    
+    .server-status-dot.bad {
+      background: red;
+      box-shadow: 0 0 10px red;
+    }
+    
     /* Responsive */
     @media (min-width: 768px) {
       .lobby-title {
@@ -298,6 +428,27 @@
     </div>
   </div>
   
+  <!-- Matchmaking Overlay -->
+  <div class="matchmaking-overlay" id="matchmakingOverlay">
+    <div class="matchmaking-container">
+      <h2 class="matchmaking-title">FINDING PLAYERS</h2>
+      <div class="matchmaking-status" id="matchmakingStatus">Connecting to server...</div>
+      
+      <div class="connection-quality">
+        <div class="connection-bar" id="connectionBar"></div>
+      </div>
+      
+      <div class="server-status">
+        <div class="server-status-dot" id="serverStatusDot"></div>
+        <span id="serverStatusText">Checking connection...</span>
+      </div>
+      
+      <div class="matchmaking-timer" id="matchmakingTimer">--</div>
+      
+      <button class="cancel-btn" id="cancelMatchmakingBtn">CANCEL</button>
+    </div>
+  </div>
+  
   <!-- Firebase & Game SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -321,6 +472,11 @@
     // Server Configuration
     const SERVER_URL = "https://game-server-five.vercel.app";
     const PING_INTERVAL = 5000; // 5 seconds
+    const MATCHMAKING_PING_INTERVAL = 1000; // 1 second during matchmaking
+    
+    // Game Configuration
+    const BASE_COUNTDOWN = 5; // Base countdown in seconds
+    const MIN_COUNTDOWN = 3; // Minimum countdown in seconds
     
     // DOM Elements
     const pingStatusEl = document.getElementById('pingStatus');
@@ -329,28 +485,158 @@
     const playerListEl = document.getElementById('playerList');
     const playMultiplayerBtn = document.getElementById('playMultiplayerBtn');
     const trainingBtn = document.getElementById('trainingBtn');
+    const matchmakingOverlay = document.getElementById('matchmakingOverlay');
+    const matchmakingStatus = document.getElementById('matchmakingStatus');
+    const matchmakingTimer = document.getElementById('matchmakingTimer');
+    const connectionBar = document.getElementById('connectionBar');
+    const serverStatusDot = document.getElementById('serverStatusDot');
+    const serverStatusText = document.getElementById('serverStatusText');
+    const cancelMatchmakingBtn = document.getElementById('cancelMatchmakingBtn');
+    
+    // Game State
+    let pingInterval;
+    let matchmakingInterval;
+    let countdownInterval;
+    let currentCountdown = BASE_COUNTDOWN;
+    let connectionStrength = 0;
+    let isMatchmaking = false;
+    let matchFound = false;
     
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       // Start checking server connection
       checkServerConnection();
-      setInterval(checkServerConnection, PING_INTERVAL);
+      pingInterval = setInterval(checkServerConnection, PING_INTERVAL);
       
       // Load players from Firebase
       loadPlayers();
       
       // Button event listeners
       playMultiplayerBtn.addEventListener('click', () => {
-        alert("GAME TIPS:\n\n• Check your internet connection\n• Monitor your ping for best performance\n• Touch to move\n• Tap to fire\n• Always watch your health\n• Destroy all enemies!");
-        setTimeout(() => {
-          window.location.href = "game.html";
-        }, 500);
+        showGameTips();
       });
       
       trainingBtn.addEventListener('click', () => {
         window.location.href = "train.html";
       });
+      
+      // Cancel matchmaking button
+      cancelMatchmakingBtn.addEventListener('click', cancelMatchmaking);
     });
+    
+    // Show game tips and start matchmaking
+    function showGameTips() {
+      alert("GAME TIPS:\n\n• Check your internet connection\n• Monitor your ping for best performance\n• Touch to move\n• Tap to fire\n• Always watch your health\n• Destroy all enemies!");
+      startMatchmaking();
+    }
+    
+    // Start matchmaking process
+    function startMatchmaking() {
+      isMatchmaking = true;
+      matchFound = false;
+      currentCountdown = calculateDynamicCountdown();
+      
+      // Show matchmaking overlay
+      matchmakingOverlay.classList.add('active');
+      updateMatchmakingTimer();
+      
+      // Start checking server connection more frequently during matchmaking
+      clearInterval(pingInterval);
+      checkServerConnection();
+      matchmakingInterval = setInterval(checkServerConnection, MATCHMAKING_PING_INTERVAL);
+      
+      // Start countdown
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(updateMatchmakingCountdown, 1000);
+      
+      // Simulate finding players
+      simulateFindingPlayers();
+    }
+    
+    // Calculate dynamic countdown based on connection
+    function calculateDynamicCountdown() {
+      if (connectionStrength >= 80) return MIN_COUNTDOWN; // Fast for excellent connection
+      if (connectionStrength >= 50) return BASE_COUNTDOWN; // Normal for good connection
+      return BASE_COUNTDOWN + 2; // Slower for poor connection
+    }
+    
+    // Update matchmaking countdown
+    function updateMatchmakingCountdown() {
+      if (matchFound) return;
+      
+      currentCountdown--;
+      updateMatchmakingTimer();
+      
+      if (currentCountdown <= 0) {
+        matchFound = true;
+        clearInterval(countdownInterval);
+        completeMatchmaking();
+      }
+    }
+    
+    // Update timer display
+    function updateMatchmakingTimer() {
+      matchmakingTimer.textContent = currentCountdown;
+    }
+    
+    // Simulate finding players
+    function simulateFindingPlayers() {
+      const statusMessages = [
+        "Searching for players...",
+        "Analyzing skill level...",
+        "Optimizing server location...",
+        "Found 1 player...",
+        "Finalizing match..."
+      ];
+      
+      let currentStatus = 0;
+      const statusInterval = setInterval(() => {
+        if (matchFound) {
+          clearInterval(statusInterval);
+          return;
+        }
+        
+        matchmakingStatus.textContent = statusMessages[currentStatus];
+        currentStatus++;
+        
+        if (currentStatus >= statusMessages.length) {
+          currentStatus = 0; // Loop messages until match found
+        }
+      }, 1500);
+    }
+    
+    // Complete matchmaking process
+    function completeMatchmaking() {
+      matchmakingStatus.textContent = "Match found! Starting game...";
+      
+      // Add connection quality effects
+      if (connectionStrength >= 80) {
+        matchmakingTimer.style.color = "lime";
+        matchmakingTimer.style.textShadow = "0 0 15px lime";
+      } else if (connectionStrength >= 50) {
+        matchmakingTimer.style.color = "#00FFCD";
+        matchmakingTimer.style.textShadow = "0 0 15px #00FFCD";
+      } else {
+        matchmakingTimer.style.color = "orange";
+        matchmakingTimer.style.textShadow = "0 0 15px orange";
+      }
+      
+      // Redirect to game after short delay
+      setTimeout(() => {
+        window.location.href = "game.html";
+      }, 1000);
+    }
+    
+    // Cancel matchmaking
+    function cancelMatchmaking() {
+      isMatchmaking = false;
+      clearInterval(matchmakingInterval);
+      clearInterval(countdownInterval);
+      matchmakingOverlay.classList.remove('active');
+      
+      // Restore normal ping interval
+      pingInterval = setInterval(checkServerConnection, PING_INTERVAL);
+    }
     
     // Check server connection and measure ping
     async function checkServerConnection() {
@@ -365,16 +651,70 @@
         if (response.ok) {
           const ping = Date.now() - startTime;
           updatePingDisplay(ping);
+          
+          // Calculate connection strength (0-100)
+          connectionStrength = calculateConnectionStrength(ping);
+          updateConnectionDisplay(connectionStrength);
+          
           return true;
         } else {
           throw new Error('Server error');
         }
       } catch (error) {
         console.error("Connection error:", error);
-        pingStatusEl.textContent = "OFFLINE";
-        pingStatusEl.className = "no-connection";
-        pingValueEl.textContent = "";
+        connectionStrength = 0;
+        updateConnectionDisplay(0);
         return false;
+      }
+    }
+    
+    // Calculate connection strength (0-100)
+    function calculateConnectionStrength(ping) {
+      if (ping <= 50) return 100;  // Excellent
+      if (ping <= 100) return 80;   // Very good
+      if (ping <= 200) return 60;   // Good
+      if (ping <= 350) return 40;   // Fair
+      if (ping <= 500) return 20;   // Poor
+      return 10;                    // Bad
+    }
+    
+    // Update connection display
+    function updateConnectionDisplay(strength) {
+      // Update connection bar
+      connectionBar.style.width = `${strength}%`;
+      
+      // Update server status indicator
+      if (strength >= 80) {
+        serverStatusDot.className = "server-status-dot excellent";
+        serverStatusText.textContent = "Excellent Connection";
+        serverStatusText.style.color = "lime";
+      } else if (strength >= 60) {
+        serverStatusDot.className = "server-status-dot good";
+        serverStatusText.textContent = "Good Connection";
+        serverStatusText.style.color = "#00FFCD";
+      } else if (strength >= 40) {
+        serverStatusDot.className = "server-status-dot fair";
+        serverStatusText.textContent = "Fair Connection";
+        serverStatusText.style.color = "yellow";
+      } else if (strength >= 20) {
+        serverStatusDot.className = "server-status-dot poor";
+        serverStatusText.textContent = "Poor Connection";
+        serverStatusText.style.color = "orange";
+      } else {
+        serverStatusDot.className = "server-status-dot bad";
+        serverStatusText.textContent = "Weak Connection";
+        serverStatusText.style.color = "red";
+      }
+      
+      // Update matchmaking status if active
+      if (isMatchmaking) {
+        if (strength >= 80) {
+          matchmakingStatus.textContent = "Strong connection! Fast matchmaking...";
+        } else if (strength >= 50) {
+          matchmakingStatus.textContent = "Standard connection. Finding match...";
+        } else {
+          matchmakingStatus.textContent = "Weak connection. Searching...";
+        }
       }
     }
     
@@ -434,7 +774,9 @@
         return;
       }
       
-      playersArray.forEach((player, index) => {
+      // Show top 10 players
+      const topPlayers = playersArray.slice(0, 10);
+      topPlayers.forEach((player, index) => {
         const playerEl = document.createElement('li');
         playerEl.className = 'player-item';
         
@@ -458,27 +800,6 @@
         
         playerListEl.appendChild(playerEl);
       });
-    }
-    
-    // Share function
-    function sharePage() {
-      if (navigator.share) {
-        navigator.share({
-          title: 'MOBE WINTERLAND',
-          text: 'Join me in MOBE WINTERLAND - the ultimate battle arena!',
-          url: window.location.href
-        }).catch(err => {
-          console.log('Error sharing:', err);
-          fallbackShare();
-        });
-      } else {
-        fallbackShare();
-      }
-    }
-    
-    function fallbackShare() {
-      const shareUrl = window.location.href;
-      prompt("Copy this link to share:", shareUrl);
     }
   </script>
 </body>
