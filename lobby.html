@@ -623,7 +623,10 @@
       
       // Redirect to game after short delay
       setTimeout(() => {
-        window.location.href = "game.html";
+        const id = `server_${Math.random().toString(20).substr(2, 6)}`;
+
+// redirect with query string
+window.location.href = `game.html?serverid=${id}`;
       }, 1000);
     }
     
