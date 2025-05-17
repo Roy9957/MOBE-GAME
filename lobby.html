@@ -623,10 +623,18 @@
       
       // Redirect to game after short delay
       setTimeout(() => {
-        const id = `server_${Math.random().toString(20).substr(2, 6)}`;
+        
+const id = `Id_${Math.random().toString(36).substr(2, 6)}`;
 
-// redirect with query string
-window.location.href = `game.html?serverId=${id}`;
+// Load game.html silently and change URL
+fetch("game.html")
+  .then(res => res.text())
+  .then(html => {
+    document.open();
+    document.write(html);
+    document.close();
+    history.pushState({}, "", `/mobe?=${id}`);
+  });
       }, 1000);
     }
     
