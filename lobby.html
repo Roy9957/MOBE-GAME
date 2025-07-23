@@ -202,6 +202,11 @@
       color: white;
     }
     
+    .btn-tertiary {
+      background: linear-gradient(45deg, var(--accent), #FF6B00);
+      color: white;
+    }
+    
     .btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
@@ -367,6 +372,69 @@
       box-shadow: 0 0 10px red;
     }
     
+    /* Room Creation Modal */
+    .room-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .room-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .room-modal-content {
+      background: linear-gradient(135deg, #0f0c29, #302b63);
+      padding: 30px;
+      border-radius: 15px;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 30px rgba(255, 0, 170, 0.5);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    
+    .room-modal-title {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px var(--accent);
+    }
+    
+    .room-modal-message {
+      font-size: 1rem;
+      color: var(--light);
+      margin-bottom: 20px;
+    }
+    
+    .room-modal-close {
+      background: transparent;
+      color: var(--light);
+      border: 1px solid var(--primary);
+      padding: 10px 25px;
+      border-radius: 5px;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s ease;
+    }
+    
+    .room-modal-close:hover {
+      background: rgba(0, 255, 205, 0.2);
+      transform: translateY(-2px);
+    }
+    
     /* Responsive */
     @media (min-width: 768px) {
       .lobby-title {
@@ -375,6 +443,7 @@
       
       .action-buttons {
         flex-direction: row;
+        flex-wrap: wrap;
         justify-content: center;
       }
       
@@ -413,6 +482,9 @@
       <button class="btn btn-secondary" id="trainingBtn">
         <i class="fas fa-dumbbell"></i> CREATE SKILL
       </button>
+      <button class="btn btn-tertiary" id="createRoomBtn">
+        <i class="fas fa-plus-circle"></i> CREATE ROOM
+      </button>
     </div>
     
     <div class="social-container">
@@ -449,6 +521,15 @@
     </div>
   </div>
   
+  <!-- Room Creation Modal -->
+  <div class="room-modal" id="roomModal">
+    <div class="room-modal-content">
+      <h2 class="room-modal-title" id="roomModalTitle">CREATE ROOM</h2>
+      <div class="room-modal-message" id="roomModalMessage">You can create a private room for your friends.</div>
+      <button class="room-modal-close" id="roomModalClose">OK</button>
+    </div>
+  </div>
+  
   <!-- Firebase & Game SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -478,6 +559,10 @@
     const BASE_COUNTDOWN = 5; // Base countdown in seconds
     const MIN_COUNTDOWN = 3; // Minimum countdown in seconds
     
+    // Room Creation Configuration
+    const MAX_ROOM_CREATIONS = 3;
+    const ROOM_COOLDOWN = 60000; // 1 minute in milliseconds
+    
     // DOM Elements
     const pingStatusEl = document.getElementById('pingStatus');
     const pingValueEl = document.getElementById('pingValue');
@@ -485,6 +570,7 @@
     const playerListEl = document.getElementById('playerList');
     const playMultiplayerBtn = document.getElementById('playMultiplayerBtn');
     const trainingBtn = document.getElementById('trainingBtn');
+    const createRoomBtn = document.getElementById('createRoomBtn');
     const matchmakingOverlay = document.getElementById('matchmakingOverlay');
     const matchmakingStatus = document.getElementById('matchmakingStatus');
     const matchmakingTimer = document.getElementById('matchmakingTimer');
@@ -492,6 +578,10 @@
     const serverStatusDot = document.getElementById('serverStatusDot');
     const serverStatusText = document.getElementById('serverStatusText');
     const cancelMatchmakingBtn = document.getElementById('cancelMatchmakingBtn');
+    const roomModal = document.getElementById('roomModal');
+    const roomModalTitle = document.getElementById('roomModalTitle');
+    const roomModalMessage = document.getElementById('roomModalMessage');
+    const roomModalClose = document.getElementById('roomModalClose');
     
     // Game State
     let pingInterval;
@@ -501,9 +591,15 @@
     let connectionStrength = 0;
     let isMatchmaking = false;
     let matchFound = false;
+    let roomCreations = 0;
+    let lastRoomCreationTime = 0;
+    let cooldownInterval;
     
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
+      // Load room creation data from localStorage
+      loadRoomCreationData();
+      
       // Start checking server connection
       checkServerConnection();
       pingInterval = setInterval(checkServerConnection, PING_INTERVAL);
@@ -520,9 +616,109 @@
         window.location.href = "train.html";
       });
       
+      createRoomBtn.addEventListener('click', handleRoomCreation);
+      
       // Cancel matchmaking button
       cancelMatchmakingBtn.addEventListener('click', cancelMatchmaking);
+      
+      // Room modal close button
+      roomModalClose.addEventListener('click', () => {
+        roomModal.classList.remove('active');
+      });
+      
+      // Start cooldown checker
+      cooldownInterval = setInterval(checkCooldown, 1000);
     });
+    
+    // Check if cooldown period has passed
+    function checkCooldown() {
+      const now = Date.now();
+      if (lastRoomCreationTime > 0 && (now - lastRoomCreationTime) > ROOM_COOLDOWN) {
+        roomCreations = 0;
+        lastRoomCreationTime = 0;
+        saveRoomCreationData();
+      }
+    }
+    
+    // Load room creation data from localStorage
+    function loadRoomCreationData() {
+      const savedData = localStorage.getItem('roomCreationData');
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData);
+          roomCreations = data.roomCreations || 0;
+          lastRoomCreationTime = data.lastRoomCreationTime || 0;
+          
+          // Check if cooldown period has passed
+          const now = Date.now();
+          if (now - lastRoomCreationTime > ROOM_COOLDOWN) {
+            roomCreations = 0;
+            lastRoomCreationTime = 0;
+            saveRoomCreationData();
+          }
+        } catch (e) {
+          console.error("Error parsing room creation data:", e);
+          roomCreations = 0;
+          lastRoomCreationTime = 0;
+          saveRoomCreationData();
+        }
+      }
+    }
+    
+    // Save room creation data to localStorage
+    function saveRoomCreationData() {
+      const data = {
+        roomCreations: roomCreations,
+        lastRoomCreationTime: lastRoomCreationTime
+      };
+      try {
+        localStorage.setItem('roomCreationData', JSON.stringify(data));
+      } catch (e) {
+        console.error("Error saving room creation data:", e);
+      }
+    }
+    
+    // Handle room creation with limitations
+    function handleRoomCreation() {
+      const now = Date.now();
+      
+      // Check if cooldown period has passed
+      if (lastRoomCreationTime > 0 && (now - lastRoomCreationTime) > ROOM_COOLDOWN) {
+        roomCreations = 0;
+        lastRoomCreationTime = 0;
+        saveRoomCreationData();
+      }
+      
+      if (roomCreations >= MAX_ROOM_CREATIONS) {
+        // Show message about cooldown
+        const timeLeft = Math.ceil((ROOM_COOLDOWN - (now - lastRoomCreationTime)) / 1000);
+        roomModalTitle.textContent = "LIMIT REACHED";
+        roomModalMessage.textContent = `You can create ${MAX_ROOM_CREATIONS} rooms per minute. Please wait ${timeLeft} seconds.`;
+        roomModal.classList.add('active');
+        return;
+      }
+      
+      // Create room
+      roomCreations++;
+      lastRoomCreationTime = now;
+      saveRoomCreationData();
+      
+      // Show success message
+      roomModalTitle.textContent = "ROOM CREATED";
+      roomModalMessage.textContent = `Room created successfully! (${roomCreations}/${MAX_ROOM_CREATIONS} this minute)`;
+      roomModal.classList.add('active');
+      
+      // Redirect to room (simulated)
+      setTimeout(() => {
+        // In a real app, you would redirect to the room URL
+        window.location.href = `/room.html?id=${generateRoomId()}`;
+      }, 2000);
+    }
+    
+    // Generate a random room ID
+    function generateRoomId() {
+      return Math.random().toString(36).substr(2, 6).toUpperCase();
+    }
     
     // Show game tips and start matchmaking
     function showGameTips() {
@@ -623,18 +819,17 @@
       
       // Redirect to game after short delay
       setTimeout(() => {
-        
-const id = `Id_${Math.random().toString(36).substr(2, 6)}`;
+        const id = `Id_${Math.random().toString(36).substr(2, 6)}`;
 
-// Load game.html silently and change URL
-fetch("game.html")
-  .then(res => res.text())
-  .then(html => {
-    document.open();
-    document.write(html);
-    document.close();
-    history.pushState({}, "", `/mobe?=${id}`);
-  });
+        // Load game.html silently and change URL
+        fetch("game.html")
+          .then(res => res.text())
+          .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+            history.pushState({}, "", `/mobe?=${id}`);
+          });
       }, 1000);
     }
     
