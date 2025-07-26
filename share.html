@@ -2,531 +2,905 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MOBE INVITE SYSTEM</title>
-  <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
-  <link rel="canonical" href="https://www.mobe-game.rf.gd/index.html" />
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- QR Code Library -->
-  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-  
+  <title>Mobe Game Link Share</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #00FFCD;
-      --secondary: #0099FF;
-      --accent: #FF00AA;
-      --dark: #0A0A2A;
-      --light: #E0F8FF;
-      --glow: 0 0 15px currentColor;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #10b981;
+      --dark: #1e293b;
+      --darker: #0f172a;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --danger: #ef4444;
+      --warning: #f59e0b;
     }
-    
+
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
-    
+
     body {
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
       color: var(--light);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
       padding: 20px;
+      min-height: 100vh;
+      line-height: 1.6;
     }
-    
-    /* Main Container */
-    .share-container {
-      background: rgba(10, 10, 42, 0.9);
-      border-radius: 15px;
-      padding: 30px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 0 30px rgba(0, 153, 255, 0.3);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--primary);
-      text-align: center;
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding-bottom: 100px;
     }
-    
-    /* Header */
-    .share-header {
-      margin-bottom: 25px;
-    }
-    
-    .share-title {
-      font-size: 2rem;
+
+    h1 {
       color: var(--primary);
-      text-shadow: var(--glow);
-      margin-bottom: 10px;
-    }
-    
-    .share-subtitle {
-      color: var(--secondary);
-      font-size: 1rem;
-    }
-    
-    /* Buttons */
-    .button-group {
+      text-align: center;
+      margin: 2rem 0;
+      font-size: 2.5rem;
+      font-weight: 600;
+      text-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+      animation: fadeIn 0.8s ease-in;
       display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-bottom: 25px;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
     }
-    
-    .share-button {
-      padding: 15px 25px;
-      border: none;
-      border-radius: 8px;
-      font-family: 'Orbitron', sans-serif;
-      font-weight: bold;
+
+    .subtitle {
+      text-align: center;
+      color: var(--gray);
+      margin-bottom: 2rem;
       font-size: 1.1rem;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .btn {
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
       cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      width: 100%;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
     }
-    
-    .share-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: 0.5s;
-      z-index: -1;
+
+    .btn:hover {
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3);
     }
-    
-    .share-button:hover::before {
-      left: 100%;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(45deg, var(--primary), var(--secondary));
-      color: var(--dark);
-      box-shadow: 0 0 15px rgba(0, 255, 205, 0.5);
-    }
-    
+
     .btn-secondary {
-      background: linear-gradient(45deg, var(--secondary), var(--accent));
-      color: white;
-      box-shadow: 0 0 15px rgba(0, 153, 255, 0.5);
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(100, 116, 139, 0.3);
     }
-    
-    .btn-tertiary {
-      background: linear-gradient(45deg, var(--accent), #FF00FF);
-      color: white;
-      box-shadow: 0 0 15px rgba(255, 0, 170, 0.5);
+
+    .btn-secondary:hover {
+      background: rgba(30, 41, 59, 0.9);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
-    
-    .share-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 0 25px currentColor;
+
+    .btn-danger {
+      background: linear-gradient(90deg, var(--danger), #dc2626);
     }
-    
-    .share-button:active {
-      transform: translateY(0);
+
+    .btn-danger:hover {
+      background: linear-gradient(90deg, #dc2626, var(--danger));
+      box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
     }
-    
-    /* QR Code Section */
-    .qrcode-section {
-      margin-top: 20px;
+
+    .btn-success {
+      background: linear-gradient(90deg, var(--secondary), #059669);
+    }
+
+    .btn-success:hover {
+      background: linear-gradient(90deg, #059669, var(--secondary));
+      box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .result-container {
       display: none;
+      margin-top: 2rem;
+      animation: fadeIn 0.5s ease-in;
     }
-    
-    .qrcode-wrapper {
-      background: white;
-      padding: 15px;
+
+    .link-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      padding: 1.5rem;
       border-radius: 10px;
-      display: inline-block;
-      margin-bottom: 20px;
-      border: 3px solid var(--primary);
-      box-shadow: 0 0 20px rgba(0, 255, 205, 0.3);
+      word-break: break-all;
+      margin-bottom: 1.5rem;
+      position: relative;
     }
-    
-    #qrcode {
-      width: 200px;
-      height: 200px;
+
+    .link-text {
+      font-size: 1.1rem;
+      color: var(--light);
+      margin-bottom: 1rem;
     }
-    
-    .qrcode-wrapper img {
-      position: absolute;
-      top: 59%;
-      left: 49%;
-      transform: translate(-50%, -50%);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid white;
-    }
-    
-    /* Link Section */
-    .link-section {
-      margin-top: 20px;
-      display: none;
-    }
-    
-    .link-container {
+
+    .link-meta {
       display: flex;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--secondary);
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--gray);
     }
-    
-    #shareLink {
-      flex: 1;
-      padding: 12px 15px;
-      background: transparent;
-      border: none;
-      color: white;
-      font-family: 'Orbitron', sans-serif;
-      outline: none;
-    }
-    
-    .copy-btn {
-      padding: 0 15px;
-      background: var(--secondary);
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
+
+    .meta-item {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 6px;
     }
-    
-    .copy-btn:hover {
-      background: var(--primary);
+
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
     }
-    
-    /* Stats Section */
-    .stats-section {
-      margin-top: 25px;
+
+    .qr-code {
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(100, 116, 139, 0.2);
       display: flex;
       justify-content: space-around;
-      text-align: center;
-    }
-    
-    .stat-item {
-      padding: 10px;
-    }
-    
-    .stat-value {
-      font-size: 1.5rem;
-      color: var(--primary);
-      font-weight: bold;
-    }
-    
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--secondary);
-      margin-top: 5px;
-    }
-    
-    /* Notification */
-    .notification {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 255, 205, 0.9);
-      color: var(--dark);
-      padding: 10px 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 15px rgba(0, 255, 205, 0.5);
+      padding: 12px;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
       z-index: 100;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: transparent;
+      border: none;
+      color: var(--gray);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 8px;
+      border-radius: 8px;
+      width: 100%;
+    }
+
+    .nav-btn:hover {
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .nav-btn.active {
+      color: var(--primary);
+    }
+
+    .nav-icon {
+      font-size: 1.2rem;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-card {
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid rgba(100, 116, 139, 0.2);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .history-item {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(100, 116, 139, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .history-item:hover {
+      background: rgba(15, 23, 42, 0.7);
+      transform: translateY(-2px);
+    }
+
+    .history-link {
+      color: var(--light);
+      text-decoration: none;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+
+    .history-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    .tab-content {
       display: none;
     }
-    
-    /* Responsive */
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--darker);
+      color: var(--light);
+      padding: 16px 24px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border-left: 4px solid var(--primary);
+      transform: translateX(200%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      max-width: 300px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-icon {
+      font-size: 1.5rem;
+    }
+
+    .toast-success .toast-icon {
+      color: var(--secondary);
+    }
+
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+
+    .toast-warning .toast-icon {
+      color: var(--warning);
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .toast-message {
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .close-toast {
+      background: none;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .game-icon {
+      font-size: 4rem;
+      color: var(--primary);
+      margin: 2rem auto;
+      display: block;
+      text-align: center;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+      40% {transform: translateY(-20px);}
+      60% {transform: translateY(-10px);}
+    }
+
     @media (max-width: 768px) {
-      .share-container {
-        padding: 20px;
+      .container {
+        padding-bottom: 120px;
       }
       
-      .share-title {
-        font-size: 1.5rem;
+      h1 {
+        font-size: 2rem;
       }
       
-      .button-group {
-        gap: 10px;
+      .card {
+        padding: 1.5rem;
       }
       
-      .share-button {
-        padding: 12px 20px;
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .card-title {
+        font-size: 1.3rem;
+      }
+      
+      .nav-btn {
+        font-size: 0.7rem;
+        padding: 6px;
+      }
+      
+      .nav-icon {
         font-size: 1rem;
-      }
-      
-      #qrcode {
-        width: 200px;
-        height: 200px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Notification -->
-  <div class="notification" id="notification"></div>
-  
-  <!-- Main Container -->
-  <div class="share-container">
-    <div class="share-header">
-      <h1 class="share-title"><i class="fas fa-share-alt"></i> MOBE INVITE</h1>
-      <p class="share-subtitle">Invite friends to join MOBE WINTERLAND</p>
+  <div class="container">
+    <h1><i class="fas fa-gamepad"></i> Mobe Game Share</h1>
+    <p class="subtitle">Create shareable links to invite friends to your game</p>
+
+    <div class="toast" id="toast">
+      <i class="fas fa-check-circle toast-icon"></i>
+      <div class="toast-content">
+        <div class="toast-title">Success</div>
+        <div class="toast-message">Game link created successfully!</div>
+      </div>
+      <button class="close-toast"><i class="fas fa-times"></i></button>
     </div>
-    
-    <div class="button-group">
-      <button class="share-button btn-primary" id="shareBtn">
-        <i class="fas fa-share"></i> Share Invite Link
+
+    <div class="card" id="generator-tab">
+      <div class="card-header">
+        <i class="fas fa-share-alt card-icon"></i>
+        <h2 class="card-title">Create Game Link</h2>
+      </div>
+      
+      <i class="fas fa-gamepad game-icon"></i>
+      
+      <p style="text-align: center; margin-bottom: 2rem; color: var(--gray);">
+        Create a temporary link to share with friends. Links expire after 24 hours.
+      </p>
+      
+      <button class="btn" onclick="createLink()">
+        <i class="fas fa-link"></i> Generate Game Link
       </button>
-      <button class="share-button btn-secondary" id="qrBtn">
-        <i class="fas fa-qrcode"></i> Generate QR Code
-      </button>
-      <button class="share-button btn-tertiary" id="copyBtn">
-        <i class="fas fa-copy"></i> Copy Direct Link
-      </button>
+      
+      <div class="result-container" id="result-container">
+        <div class="link-box">
+          <div class="link-text" id="link-text"></div>
+          <div class="link-meta">
+            <div class="meta-item">
+              <i class="fas fa-clock"></i>
+              <span id="expiry-meta">Expires in 24 hours</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-users"></i>
+              <span id="clicks-meta">0 clicks</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="qr-container" id="qr-container">
+          <div class="qr-code" id="qrcode"></div>
+          <small>Scan QR code to join the game</small>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="btn btn-success" onclick="copyLink()">
+            <i class="fas fa-copy"></i> Copy Link
+          </button>
+          <button class="btn btn-secondary" onclick="shareLink()">
+            <i class="fas fa-share-alt"></i> Share
+          </button>
+          <button class="btn btn-danger" onclick="clearForm()">
+            <i class="fas fa-trash"></i> Clear
+          </button>
+        </div>
+      </div>
     </div>
     
-    <!-- QR Code Section -->
-    <div class="qrcode-section" id="qrcodeSection">
-      <div class="qrcode-wrapper">
-        <div id="qrcode"></div>
-        <img src="https://assets.onecompiler.app/42swzbgaa/432b6dfa2/1000048868.png" alt="MOBE Logo">
+    <div class="card" id="analytics-tab" style="display: none;">
+      <div class="card-header">
+        <i class="fas fa-chart-line card-icon"></i>
+        <h2 class="card-title">Game Link Analytics</h2>
       </div>
-      <p>Scan this code to join MOBE</p>
+      
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-value" id="total-clicks">0</div>
+          <div class="stat-label">Total Clicks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="unique-players">0</div>
+          <div class="stat-label">Unique Players</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="active-games">0</div>
+          <div class="stat-label">Active Games</div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);">Recent Game Links</h3>
+        <div id="top-links">
+          <!-- Will be populated by JS -->
+        </div>
+      </div>
     </div>
     
-    <!-- Link Section -->
-    <div class="link-section" id="linkSection">
-      <div class="link-container">
-        <input type="text" id="shareLink" readonly>
-        <button class="copy-btn" id="copyLinkBtn"><i class="fas fa-copy"></i></button>
+    <div class="card" id="history-tab" style="display: none;">
+      <div class="card-header">
+        <i class="fas fa-history card-icon"></i>
+        <h2 class="card-title">Game Link History</h2>
       </div>
-      <p style="margin-top: 10px; font-size: 0.9rem;">Link expires in 24 hours</p>
-    </div>
-    
-    <!-- Stats Section -->
-    <div class="stats-section">
-      <div class="stat-item">
-        <div class="stat-value" id="invitesSent">0</div>
-        <div class="stat-label">Invites Sent</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="playersJoined">0</div>
-        <div class="stat-label">Players Joined</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="linkExpires">24h</div>
-        <div class="stat-label">Link Expires</div>
+      
+      <div id="links-history">
+        <!-- Will be populated by JS -->
       </div>
     </div>
   </div>
 
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('generator')">
+      <i class="fas fa-share-alt nav-icon"></i>
+      <span>Share</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('analytics')">
+      <i class="fas fa-chart-line nav-icon"></i>
+      <span>Analytics</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('history')">
+      <i class="fas fa-history nav-icon"></i>
+      <span>History</span>
+    </button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
-    // DOM Elements
-    const notificationEl = document.getElementById('notification');
-    const shareBtn = document.getElementById('shareBtn');
-    const qrBtn = document.getElementById('qrBtn');
-    const copyBtn = document.getElementById('copyBtn');
-    const copyLinkBtn = document.getElementById('copyLinkBtn');
-    const qrcodeSection = document.getElementById('qrcodeSection');
-    const linkSection = document.getElementById('linkSection');
-    const shareLinkEl = document.getElementById('shareLink');
-    const invitesSentEl = document.getElementById('invitesSent');
-    const playersJoinedEl = document.getElementById('playersJoined');
-    const linkExpiresEl = document.getElementById('linkExpires');
-    
-    // App Data
-    let invitesSent = localStorage.getItem('invitesSent') || 0;
-    let playersJoined = localStorage.getItem('playersJoined') || 0;
-    const baseLink = "https://mobe-link-share.web.app/";
-    let currentInviteLink = "";
-    
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      // Load stats
-      updateStats();
+    const SERVER_URL = "https://mobe2-0.onrender.com";
+    let currentLink = "";
+    let currentLinkId = "";
+    let qrCode = null;
+    let linkHistory = JSON.parse(localStorage.getItem('gameLinkHistory')) || [];
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      updateHistoryDisplay();
+      loadAnalytics();
       
-      // Set up event listeners
-      setupEventListeners();
+      // Close toast when X is clicked
+      document.querySelector('.close-toast').addEventListener('click', hideToast);
+      
+      // Check if server is available
+      checkServerStatus();
     });
-    
-    function setupEventListeners() {
-      // Share Button
-      shareBtn.addEventListener('click', shareInviteLink);
-      
-      // QR Code Button
-      qrBtn.addEventListener('click', toggleQRCode);
-      
-      // Copy Button
-      copyBtn.addEventListener('click', copyDirectLink);
-      
-      // Copy Link Button
-      copyLinkBtn.addEventListener('click', () => {
-        if (currentInviteLink) {
-          copyToClipboard(currentInviteLink);
-        } else {
-          copyToClipboard(generateInviteLink());
+
+    async function checkServerStatus() {
+      try {
+        const response = await fetch(`${SERVER_URL}/api/links`);
+        if (!response.ok) {
+          showToast('Warning', 'Server connection issue detected', 'warning');
         }
-      });
+      } catch (error) {
+        showToast('Warning', 'Could not connect to server', 'warning');
+      }
     }
-    
-    function generateInviteLink() {
-      const timestamp = Date.now();
-      const expireTime = new Date(timestamp + 24 * 60 * 60 * 1000).toISOString();
-      currentInviteLink = `${baseLink}?ref=mobe_invite&expire=${encodeURIComponent(expireTime)}&sender=${generateUniqueId()}`;
-      return currentInviteLink;
+
+    async function createLink() {
+      try {
+        // Show loading state
+        const btn = document.querySelector('#generator-tab .btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Link...';
+        btn.disabled = true;
+
+        const response = await fetch(`${SERVER_URL}/api/links`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            expiresInHours: 24, // Fixed 24 hour expiration
+            campaign: "mobe" // Default campaign
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.url && data.id) {
+          currentLink = data.url;
+          currentLinkId = data.id;
+          const resultContainer = document.getElementById("result-container");
+          const linkText = document.getElementById("link-text");
+          
+          linkText.innerHTML = `<strong>✅ Game Link Created:</strong> <a href="${data.url}" target="_blank" style="color: var(--primary);">${data.url}</a>`;
+          document.getElementById("expiry-meta").textContent = `Expires in 24 hours`;
+          document.getElementById("clicks-meta").textContent = `0 clicks`;
+          resultContainer.style.display = "block";
+          
+          // Generate QR code
+          const qrContainer = document.getElementById("qrcode");
+          qrContainer.innerHTML = "";
+          qrCode = new QRCode(qrContainer, {
+            text: data.url,
+            width: 180,
+            height: 180,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+          });
+          
+          // Save to history
+          const linkData = {
+            url: data.url,
+            id: data.id,
+            created: new Date().toISOString(),
+            clicks: 0,
+            uniqueClicks: 0,
+            expiresAt: data.expires,
+            campaign: "mobe"
+          };
+          linkHistory.unshift(linkData);
+          localStorage.setItem('gameLinkHistory', JSON.stringify(linkHistory));
+          
+          showToast('Success', 'Game link created successfully!', 'success');
+          updateHistoryDisplay();
+          loadAnalytics();
+          
+          // Start polling for stats updates
+          startStatsPolling();
+        } else {
+          throw new Error('Invalid response from server');
+        }
+      } catch (error) {
+        console.error("Error creating game link:", error);
+        showToast('Error', 'Failed to create game link. Please try again.', 'error');
+      } finally {
+        // Restore button state
+        const btn = document.querySelector('#generator-tab .btn');
+        btn.innerHTML = '<i class="fas fa-link"></i> Generate Game Link';
+        btn.disabled = false;
+      }
     }
-    
-    function generateUniqueId() {
-      return 'xxxx-xxxx-xxxx'.replace(/[x]/g, () => {
-        return Math.floor(Math.random() * 16).toString(16);
-      });
+
+    function startStatsPolling() {
+      if (!currentLinkId) return;
+      
+      // Poll every 5 seconds for updates
+      const pollInterval = setInterval(async () => {
+        if (!currentLinkId) {
+          clearInterval(pollInterval);
+          return;
+        }
+        
+        try {
+          const response = await fetch(`${SERVER_URL}/api/links/${currentLinkId}`);
+          if (response.ok) {
+            const stats = await response.json();
+            
+            // Update the current link display
+            document.getElementById("clicks-meta").textContent = `${stats.clicks} clicks`;
+            
+            // Update history
+            const linkIndex = linkHistory.findIndex(link => link.id === currentLinkId);
+            if (linkIndex !== -1) {
+              linkHistory[linkIndex].clicks = stats.clicks;
+              linkHistory[linkIndex].uniqueClicks = stats.uniqueClicks;
+              localStorage.setItem('gameLinkHistory', JSON.stringify(linkHistory));
+              
+              // Update displays if on those tabs
+              if (document.getElementById('analytics-tab').style.display !== 'none') {
+                loadAnalytics();
+              }
+              if (document.getElementById('history-tab').style.display !== 'none') {
+                updateHistoryDisplay();
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error polling for stats:", error);
+        }
+      }, 5000);
     }
-    
-    function shareInviteLink() {
-      const inviteLink = generateInviteLink();
+
+    function copyLink() {
+      if (!currentLink) {
+        showToast('Error', 'No game link to copy', 'error');
+        return;
+      }
+      
+      navigator.clipboard.writeText(currentLink)
+        .then(() => showToast('Copied', 'Game link copied to clipboard!', 'success'))
+        .catch(() => showToast('Error', 'Failed to copy game link', 'error'));
+    }
+
+    function shareLink() {
+      if (!currentLink) {
+        showToast('Error', 'No game link to share', 'error');
+        return;
+      }
       
       if (navigator.share) {
         navigator.share({
-          title: 'Join MOBE WINTERLAND',
-          text: 'I invite you to play MOBE WINTERLAND - the ultimate battle arena!',
-          url: inviteLink
-        }).then(() => {
-          // Share successful
-          incrementInvitesSent();
-          showNotification('Invite shared successfully!');
+          title: 'Join my game on Mobe!',
+          text: 'I created a game for us to play together!',
+          url: currentLink
         }).catch(err => {
-          console.log('Error sharing:', err);
-          fallbackShare(inviteLink);
+          if (err.name !== 'AbortError') {
+            showToast('Error', 'Share failed', 'error');
+          }
         });
       } else {
-        fallbackShare(inviteLink);
+        // Fallback for browsers that don't support the Share API
+        const shareUrl = `mailto:?subject=Join my game on Mobe!&body=I created a game for us to play together! ${encodeURIComponent(currentLink)}`;
+        window.location.href = shareUrl;
       }
     }
-    
-    function fallbackShare(link) {
-      // Show link section
-      shareLinkEl.value = link;
-      linkSection.style.display = 'block';
-      qrcodeSection.style.display = 'none';
-      
-      showNotification('Link generated - copy and share it manually');
+
+    function clearForm() {
+      document.getElementById("result-container").style.display = "none";
+      currentLink = "";
+      currentLinkId = "";
+      if (qrCode) qrCode.clear();
     }
-    
-    function toggleQRCode() {
-      const inviteLink = generateInviteLink();
+
+    function showTab(tabName) {
+      // Hide all tabs
+      document.getElementById('generator-tab').style.display = 'none';
+      document.getElementById('analytics-tab').style.display = 'none';
+      document.getElementById('history-tab').style.display = 'none';
       
-      if (qrcodeSection.style.display === 'block') {
-        qrcodeSection.style.display = 'none';
-      } else {
-        // Generate QR Code
-        const qrcodeEl = document.getElementById('qrcode');
-        qrcodeEl.innerHTML = '';
-        new QRCode(qrcodeEl, {
-          text: inviteLink,
-          width: 200,
-          height: 200,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-        
-        qrcodeSection.style.display = 'block';
-        linkSection.style.display = 'none';
-        
-        incrementInvitesSent();
-        showNotification('QR Code generated');
+      // Show selected tab
+      document.getElementById(`${tabName}-tab`).style.display = 'block';
+      
+      // Update nav buttons
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      // Load data if needed
+      if (tabName === 'analytics') {
+        loadAnalytics();
+      } else if (tabName === 'history') {
+        updateHistoryDisplay();
       }
     }
-    
-    function copyDirectLink() {
-      const inviteLink = generateInviteLink();
-      copyToClipboard(inviteLink);
-      incrementInvitesSent();
-    }
-    
-    function copyToClipboard(text) {
-      // Create a temporary textarea element
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';  // Prevent scrolling to bottom
-      document.body.appendChild(textarea);
-      textarea.select();
+
+    function updateHistoryDisplay() {
+      const historyContainer = document.getElementById('links-history');
       
+      if (linkHistory.length === 0) {
+        historyContainer.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--gray);">
+            <i class="fas fa-gamepad" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>No game links created yet</p>
+          </div>
+        `;
+        return;
+      }
+      
+      historyContainer.innerHTML = '';
+      
+      linkHistory.forEach(link => {
+        const isExpired = new Date() > new Date(link.expiresAt);
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.innerHTML = `
+          <a href="${link.url}" target="_blank" class="history-link">${link.url}</a>
+          <div class="history-meta">
+            <span><i class="fas fa-clock"></i> ${isExpired ? 'Expired' : 'Active'}</span>
+            <span><i class="fas fa-users"></i> ${link.uniqueClicks || 0} unique clicks</span>
+            <span><i class="fas fa-mouse-pointer"></i> ${link.clicks || 0} total clicks</span>
+          </div>
+        `;
+        historyContainer.appendChild(historyItem);
+      });
+    }
+
+    async function loadAnalytics() {
       try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-          showNotification('Link copied to clipboard!');
-        } else {
-          showNotification('Failed to copy link', true);
+        // First try to get fresh data from server
+        const response = await fetch(`${SERVER_URL}/api/links`);
+        if (response.ok) {
+          const serverData = await response.json();
+          
+          // Update our local history with server data
+          linkHistory.forEach(localLink => {
+            const serverLink = serverData.links.find(serverLink => serverLink.id === localLink.id);
+            if (serverLink) {
+              localLink.clicks = serverLink.clicks;
+              localLink.uniqueClicks = serverLink.uniqueClicks;
+              localLink.isActive = serverLink.isActive;
+            }
+          });
+          
+          localStorage.setItem('gameLinkHistory', JSON.stringify(linkHistory));
         }
-      } catch (err) {
-        showNotification('Error copying link', true);
-        console.error('Could not copy text: ', err);
+      } catch (error) {
+        console.error("Error fetching analytics:", error);
       }
       
-      document.body.removeChild(textarea);
-    }
-    
-    function incrementInvitesSent() {
-      invitesSent++;
-      localStorage.setItem('invitesSent', invitesSent);
-      updateStats();
-    }
-    
-    function updateStats() {
-      invitesSentEl.textContent = invitesSent;
-      playersJoinedEl.textContent = playersJoined;
+      // Calculate stats from local history
+      const totalClicks = linkHistory.reduce((sum, link) => sum + (link.clicks || 0), 0);
+      const uniquePlayers = linkHistory.reduce((sum, link) => sum + (link.uniqueClicks || 0), 0);
+      const activeGames = linkHistory.filter(link => {
+        return new Date() < new Date(link.expiresAt);
+      }).length;
       
-      // Simulate some players joining (in a real app, this would come from your database)
-      if (invitesSent > 0 && playersJoined < invitesSent) {
-        setTimeout(() => {
-          playersJoined = Math.min(playersJoined + Math.floor(Math.random() * 3), invitesSent);
-          localStorage.setItem('playersJoined', playersJoined);
-          playersJoinedEl.textContent = playersJoined;
-        }, 2000);
-      }
-    }
-    
-    function showNotification(message, isError = false) {
-      notificationEl.textContent = message;
-      notificationEl.style.backgroundColor = isError ? 'rgba(255, 0, 0, 0.9)' : 'rgba(0, 255, 205, 0.9)';
-      notificationEl.style.color = isError ? 'white' : 'var(--dark)';
-      notificationEl.style.display = 'block';
+      document.getElementById('total-clicks').textContent = totalClicks;
+      document.getElementById('unique-players').textContent = uniquePlayers;
+      document.getElementById('active-games').textContent = activeGames;
       
-      setTimeout(() => {
-        notificationEl.style.display = 'none';
-      }, 3000);
-    }
-    
-    // Check for referral parameters in URL
-    function checkReferral() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('ref') && params.get('ref') === 'mobe_invite') {
-        // This is a referral link
-        playersJoined++;
-        localStorage.setItem('playersJoined', playersJoined);
-        updateStats();
+      // Show recent links
+      const topLinksContainer = document.getElementById('top-links');
+      if (linkHistory.length === 0) {
+        topLinksContainer.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--gray);">
+            <i class="fas fa-gamepad" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>No game links created yet</p>
+          </div>
+        `;
+      } else {
+        // Take most recent 3 links
+        const recentLinks = linkHistory.slice(0, 3);
         
-        // Clean the URL
-        window.history.replaceState({}, document.title, window.location.pathname);
+        topLinksContainer.innerHTML = '';
+        recentLinks.forEach(link => {
+          const isExpired = new Date() > new Date(link.expiresAt);
+          const linkItem = document.createElement('div');
+          linkItem.className = 'history-item';
+          linkItem.innerHTML = `
+            <a href="${link.url}" target="_blank" class="history-link">${link.url}</a>
+            <div class="history-meta">
+              <span><i class="fas fa-clock"></i> ${isExpired ? 'Expired' : 'Active'}</span>
+              <span><i class="fas fa-users"></i> ${link.uniqueClicks || 0} unique clicks</span>
+              <span><i class="fas fa-mouse-pointer"></i> ${link.clicks || 0} total clicks</span>
+            </div>
+          `;
+          topLinksContainer.appendChild(linkItem);
+        });
       }
     }
-    
-    // Check for referrals when page loads
-    checkReferral();
+
+    function showToast(title, message, type) {
+      const toast = document.getElementById('toast');
+      const toastIcon = toast.querySelector('.toast-icon');
+      const toastTitle = toast.querySelector('.toast-title');
+      const toastMessage = toast.querySelector('.toast-message');
+      
+      // Update toast content
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+      
+      // Update icon and style based on type
+      toast.className = 'toast'; // Reset classes
+      toast.classList.add('show');
+      
+      if (type === 'success') {
+        toast.classList.add('toast-success');
+        toastIcon.className = 'fas fa-check-circle toast-icon';
+      } else if (type === 'error') {
+        toast.classList.add('toast-error');
+        toastIcon.className = 'fas fa-exclamation-circle toast-icon';
+      } else if (type === 'warning') {
+        toast.classList.add('toast-warning');
+        toastIcon.className = 'fas fa-exclamation-triangle toast-icon';
+      }
+      
+      // Auto-hide after 5 seconds
+      setTimeout(hideToast, 5000);
+    }
+
+    function hideToast() {
+      document.getElementById('toast').classList.remove('show');
+    }
   </script>
 </body>
 </html>
