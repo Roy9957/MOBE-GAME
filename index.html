@@ -2,130 +2,123 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="robots" content="index, follow">
-    <meta name="description" content="Play the best online games on MOBE GAME. Join the ultimate gaming experience today!">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOBE GAME</title>
-    <!-- Open Graph Meta Tags -->
-<meta property="og:title" content="MOBE GAME" />
-<meta property="og:description" content="Ultimate battle ground in space | Play with friends." />
-<meta property="og:image" content="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" />
-<meta property="og:url" content="https://www.mobe-game.rf.gd" />
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="MOBE" />
-     <meta name="application-name" content="Mobe Game" />
-
-    <link rel="icon" href="favicon.ico" type="image/png">
-    <meta name="keywords" content="Mobe Game, Online Game, Multiplayer Game, Battle Game, Free Game, MOBE, Gaming, Mobile Game, Web Game" />
-    <meta name="google-site-verification" content="oj2lsOz9siJSv2v1Lg00cMNZcndz-WLP8QgjBSRU92o" />
-    <noscript>
-  <p>Play the best online games on MOBE GAME. Join the ultimate gaming experience today.</p>
-</noscript>
-    <link rel="canonical" href="https://www.mobe-game.rf.gd/index.html" />
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "MOBE GAME",
-  "url": "https://www.mobe-game.rf.gd",
-  "description": "MOBE GAME offers an exciting gaming experience with amazing features!",
-  "logo": {
-    "@type": "ImageObject",
-    "url": "favicon.ico"
-  }
-}
-</script>
+    <title>MOBE GAME STARTING NOW</title>
+    <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap');
-        
+
         :root {
             --primary: #FFCC00;
             --secondary: #0019FF;
             --accent: #FFAD00;
             --error: #FF3860;
-            --bg: #111111;
+            --bg: #0a0a0a;
             --glow: 0 0 15px currentColor;
+            --neon: #00ffcc;
         }
-        
+
         body {
             height: 100vh;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: var(--bg);
+            background: radial-gradient(circle at center, #1a1a2e 0%, var(--bg) 70%);
             color: white;
             font-family: 'Orbitron', sans-serif;
             flex-direction: column;
             overflow: hidden;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(255, 204, 0, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 80% 70%, rgba(0, 25, 255, 0.05) 0%, transparent 20%);
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900"%3E%3Cg%3E%3Ccircle fill="%23FFCC00" fill-opacity="0.2" cx="200" cy="150" r="10"/%3E%3Ccircle fill="%230019FF" fill-opacity="0.2" cx="1200" cy="750" r="15"/%3E%3Ccircle fill="%23FFAD00" fill-opacity="0.2" cx="600" cy="300" r="12"/%3E%3C/g%3E%3C/svg%3E');
+            animation: particleFloat 20s linear infinite;
         }
 
         /* Logo styling */
         .logo-container {
-            position: relative;
-            width: 250px;
-            height: 250px;
-            margin-bottom: 20px;
-            perspective: 1000px;
+            width: 100px;
+            height: 100px;
+            perspective: 1200px;
+            filter: drop-shadow(0 0 20px var(--neon));
         }
 
         .logo {
             width: 100%;
             height: 100%;
-            background: url('j.png') no-repeat center;
-            background-size: contain;
             opacity: 0;
-            transform: rotateY(90deg);
-            animation: logoIntro 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            transform: rotateY(90deg) scale(0.8);
+            animation: logoIntro 2.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
         }
 
-        /* Logo text styling */
+        /* Logo text with neon effect */
         .logo-text {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--neon);
             text-align: center;
-            margin-top: 1rem;
-            opacity: 0;
-            text-shadow: var(--glow);
-            letter-spacing: 2px;
-            animation: textGlow 2s infinite alternate, fadeIn 1s ease-out forwards 1s;
-        }
-
-        /* Connection status */
-        .connection-status {
-            margin: 1.5rem 0;
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
+            margin-top: 1.5rem;
+            text-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon);
             letter-spacing: 3px;
             opacity: 0;
-            animation: fadeIn 1s ease-out forwards 1.5s;
+            animation: neonFlicker 3s infinite alternate, fadeIn 1.5s ease-out forwards 1.2s;
         }
 
-        /* Progress bar container */
+        .logo-text i {
+            margin-right: 10px;
+            color: var(--accent);
+            animation: spin 2s linear infinite;
+        }
+
+        /* Connection status with Font Awesome icons */
+        .connection-status {
+            margin: 2rem 0;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 1.2s ease-out forwards 1.8s;
+        }
+
+        .connection-status i {
+            color: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Progress bar with animated gradient */
         .progress-container {
-            width: 80%;
-            max-width: 500px;
-            background-color: rgba(0, 25, 255, 0.2);
-            margin-top: 2rem;
-            height: 8px;
-            border-radius: 4px;
+            width: 85%;
+            max-width: 600px;
+            background: rgba(0, 25, 255, 0.15);
+            margin-top: 2.5rem;
+            height: 12px;
+            border-radius: 6px;
             overflow: hidden;
             position: relative;
             display: none;
-            box-shadow: 0 0 10px rgba(0, 25, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 25, 255, 0.5);
         }
 
         .progress-bar {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, var(--secondary), var(--accent));
-            border-radius: 4px;
-            transition: width 0.3s ease;
+            background: linear-gradient(45deg, var(--secondary), var(--neon), var(--accent));
+            border-radius: 6px;
+            transition: width 0.4s ease-in-out;
             position: relative;
             overflow: hidden;
         }
@@ -140,81 +133,101 @@
             background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(255, 255, 255, 0.4),
+                rgba(255, 255, 255, 0.6),
                 transparent
             );
-            animation: progressShine 2s infinite;
+            animation: progressShine 1.5s infinite;
         }
 
-        /* Connection quality indicator */
-        .connection-quality {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin: 1rem 0;
-            opacity: 0;
-            animation: fadeIn 1s ease-out forwards 1.5s;
-        }
-
-        .quality-bar {
-            width: 30px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .quality-bar.active {
-            background: var(--primary);
-            box-shadow: 0 0 8px var(--primary);
-        }
-
-        /* Loading messages */
-        .loading-message {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
+        /* Status message styling */
+        .status-message {
+            font-size: 1.2rem;
+            color: var(--neon);
             margin-top: 1.5rem;
-            min-height: 20px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            opacity: 0;
-            animation: fadeIn 1s ease-out forwards 1.5s;
+            text-align: center;
+            min-height: 24px;
+            text-shadow: 0 0 5px var(--neon);
+        }
+
+        /* 2D Game Elements */
+        .game-elements {
+            position: absolute;
+            bottom: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .game-element {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 5px;
+            transform: skewX(-15deg);
+            opacity: 0.7;
+            animation: elementPulse 2s infinite alternate;
+        }
+
+        .game-element:nth-child(1) {
+            background: var(--secondary);
+            animation-delay: 0.2s;
+        }
+
+        .game-element:nth-child(2) {
+            background: var(--accent);
+            animation-delay: 0.4s;
+        }
+
+        .game-element:nth-child(3) {
+            background: var(--neon);
+            animation-delay: 0.6s;
         }
 
         /* Error message styling */
         .error-container {
             display: none;
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             opacity: 0;
-            animation: fadeIn 0.5s ease-out forwards;
+            animation: fadeIn 0.6s ease-out forwards;
         }
 
         .error-message {
             color: var(--error);
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 0 8px var(--error);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px var(--error);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .error-message i {
+            animation: shake 0.5s infinite;
         }
 
         .retry-btn {
             background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            padding: 0.8rem 2rem;
+            color: var(--neon);
+            border: 2px solid var(--neon);
+            padding: 1rem 2.5rem;
             font-family: 'Orbitron', sans-serif;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
+            letter-spacing: 3px;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
         }
 
         .retry-btn:hover {
-            background: rgba(255, 204, 0, 0.1);
-            box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+            background: rgba(0, 255, 204, 0.2);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.6);
+            transform: translateY(-2px);
         }
 
         .retry-btn::before {
@@ -227,38 +240,25 @@
             background: linear-gradient(
                 90deg,
                 transparent,
-                rgba(255, 204, 0, 0.4),
+                rgba(0, 255, 204, 0.5),
                 transparent
             );
-            transition: all 0.5s ease;
+            transition: all 0.6s ease;
         }
 
         .retry-btn:hover::before {
             left: 100%;
         }
 
-        /* Terminal effect */
-        .terminal-line {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            z-index: 100;
-            animation: scanLine 8s linear infinite;
-        }
-
         /* Animations */
         @keyframes logoIntro {
             0% {
                 opacity: 0;
-                transform: rotateY(90deg) scale(0.5);
+                transform: rotateY(90deg) scale(0.8);
             }
-            70% {
+            60% {
                 opacity: 1;
-                transform: rotateY(0) scale(1.1);
+                transform: rotateY(0) scale(1.15);
             }
             100% {
                 opacity: 1;
@@ -271,9 +271,9 @@
             to { opacity: 1; }
         }
 
-        @keyframes textGlow {
-            from { text-shadow: 0 0 5px var(--primary); }
-            to { text-shadow: 0 0 20px var(--primary); }
+        @keyframes neonFlicker {
+            0%, 100% { text-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon); }
+            50% { text-shadow: 0 0 15px var(--neon), 0 0 30px var(--neon); }
         }
 
         @keyframes progressShine {
@@ -281,70 +281,94 @@
             100% { transform: translateX(100%); }
         }
 
-        @keyframes scanLine {
-            0% { top: 100%; }
-            100% { top: -10%; }
+        @keyframes particleFloat {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes elementPulse {
+            0% { transform: skewX(-15deg) scale(1); opacity: 0.7; }
+            100% { transform: skewX(-15deg) scale(1.2); opacity: 1; }
         }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .logo-container {
-                width: 180px;
-                height: 180px;
+                width: 220px;
+                height: 220px;
             }
-            
+
             .logo-text {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
-            
+
             .progress-container {
                 width: 90%;
+            }
+
+            .connection-status {
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Logo -->
+    <!-- Animated background particles -->
+    <div class="particles"></div>
+
+    <!-- Logo with SVG -->
     <div class="logo-container">
-        <div class="logo"></div>
+        <img class="logo" src="j.png">
     </div>
 
-    <!-- Logo text -->
-    <div class="logo-text">MOBE GAME</div>
-    
-    <!-- Connection status -->
-    <div class="connection-status" id="connectionStatus">Initializing connection...</div>
-    
-    <!-- Connection quality indicator -->
-    <div class="connection-quality" id="connectionQuality">
-        <div class="quality-bar"></div>
-        <div class="quality-bar"></div>
-        <div class="quality-bar"></div>
-        <div class="quality-bar"></div>
-        <div class="quality-bar"></div>
-    </div>
-    
+    <!-- Logo text with Font Awesome icon -->
+    <div class="logo-text"><i class="fas fa-rocket"></i>MOBE GAME</div>
+
+    <!-- Status message -->
+    <div class="status-message" id="statusMessage">Game loading...</div>
+
+    <!-- Connection status with icon -->
+    <div class="connection-status" id="connectionStatus"><i class="fas fa-wifi"></i>Connecting server...</div>
+
     <!-- Progress bar -->
     <div class="progress-container" id="progressContainer">
         <div class="progress-bar" id="progressBar"></div>
     </div>
-    
-    <!-- Loading messages -->
-    <div class="loading-message" id="loadingMessage">Checking server status...</div>
-    
+
+    <!-- 2D Game Elements -->
+    <div class="game-elements">
+        <div class="game-element"></div>
+        <div class="game-element"></div>
+        <div class="game-element"></div>
+    </div>
+
     <!-- Error message -->
     <div class="error-container" id="errorContainer">
-        <div class="error-message" id="errorMessage">Connection error! Please check your internet connection.</div>
+        <div class="error-message" id="errorMessage"><i class="fas fa-exclamation-triangle"></i>Connection error! Please check your internet connection.</div>
         <button class="retry-btn" id="retryBtn">Retry Connection</button>
     </div>
-    
-    <!-- Terminal effect -->
-    <div class="terminal-line"></div>
 
     <script>
         class GameLoader {
             constructor() {
-                // Updated server configuration
                 this.serverConfig = {
                     baseUrl: 'https://game-server-five.vercel.app',
                     endpoints: {
@@ -352,113 +376,110 @@
                         gameData: '/load-game'
                     }
                 };
-                
+
                 this.elements = {
                     connectionStatus: document.getElementById('connectionStatus'),
-                    connectionQuality: document.getElementById('connectionQuality'),
+                    statusMessage: document.getElementById('statusMessage'),
                     progressBar: document.getElementById('progressBar'),
                     progressContainer: document.getElementById('progressContainer'),
-                    loadingMessage: document.getElementById('loadingMessage'),
                     errorContainer: document.getElementById('errorContainer'),
                     errorMessage: document.getElementById('errorMessage'),
                     retryBtn: document.getElementById('retryBtn')
                 };
-                
+
                 this.maxAttempts = 3;
                 this.attemptCount = 0;
                 this.connectionSpeed = 0;
                 this.loadingPhases = [
-                    "Initializing game core...",
-                    "Loading textures...",
-                    "Compiling shaders...",
-                    "Loading world data...",
-                    "Synchronizing with server...",
-                    "Finalizing setup..."
+                    "Game loading...",
+                    "Connecting server...",
+                    "Initializing data...",
+                    "Obtaining game database...",
+                    "Booting game...",
+                    "Finalising setup...",
+                    "Launching Lobby"
                 ];
-                
+
                 this.init();
             }
-            
+
             init() {
                 this.elements.retryBtn.addEventListener('click', () => this.startConnection());
                 this.startConnection();
             }
-            
+
             async startConnection() {
                 this.attemptCount = 0;
                 this.resetUI();
                 await this.checkServerConnection();
             }
-            
+
             resetUI() {
                 this.elements.errorContainer.style.display = 'none';
                 this.elements.progressContainer.style.display = 'none';
                 this.setProgress(0);
-                this.updateConnectionStatus('Initializing connection...');
-                this.updateLoadingMessage('Checking server status...');
-                this.updateConnectionQuality(0);
+                this.updateStatusMessage('Game loading...');
+                this.updateConnectionStatus('Connecting server...');
             }
-            
+
             async checkServerConnection() {
                 this.attemptCount++;
-                this.updateLoadingMessage(`Connecting to server (Attempt ${this.attemptCount}/${this.maxAttempts})...`);
-                
+                this.updateConnectionStatus(`Connecting server (Attempt ${this.attemptCount}/${this.maxAttempts})...`);
+
                 try {
-                    // Check basic connectivity first
                     if (!navigator.onLine) {
                         throw new Error('No internet connection');
                     }
-                    
-                    // First check health endpoint
+
                     const healthUrl = `${this.serverConfig.baseUrl}${this.serverConfig.endpoints.health}`;
                     const startTime = performance.now();
-                    
+
+                    this.updateStatusMessage("Initializing data...");
                     const healthResponse = await fetch(healthUrl, {
                         method: 'GET',
                         headers: { 'Content-Type': 'application/json' }
                     });
-                    
+
                     if (!healthResponse.ok) {
                         throw new Error(`Server error: ${healthResponse.status}`);
                     }
-                    
+
                     const endTime = performance.now();
                     const latency = endTime - startTime;
                     this.connectionSpeed = this.calculateConnectionSpeed(latency);
-                    this.updateConnectionQuality(this.connectionSpeed);
-                    
-                    // Then load game data
+
+                    this.updateStatusMessage("Obtaining game database...");
                     const gameDataUrl = `${this.serverConfig.baseUrl}${this.serverConfig.endpoints.gameData}`;
                     const gameResponse = await fetch(gameDataUrl, {
                         method: 'GET',
                         headers: { 'Content-Type': 'application/json' }
                     });
-                    
+
                     if (!gameResponse.ok) {
                         throw new Error(`Game data error: ${gameResponse.status}`);
                     }
-                    
+
                     const gameData = await gameResponse.json();
                     this.updateConnectionStatus('Server connected');
-                    this.updateLoadingMessage('Authenticating session...');
+                    this.updateStatusMessage('Booting game...');
                     this.elements.progressContainer.style.display = 'block';
-                    
+
                     await this.simulateLoading(gameData);
-                    
+
                 } catch (error) {
                     console.error('Connection error:', error);
-                    
+
                     if (this.attemptCount < this.maxAttempts) {
                         const delay = Math.min(1000 * Math.pow(2, this.attemptCount), 8000);
-                        this.updateLoadingMessage(`Retrying in ${delay/1000} seconds...`);
+                        this.updateStatusMessage(`Retrying in ${delay/1000} seconds`);
                         await new Promise(resolve => setTimeout(resolve, delay));
                         return this.checkServerConnection();
                     }
-                    
+
                     this.handleConnectionError(error);
                 }
             }
-            
+
             calculateConnectionSpeed(latency) {
                 if (latency < 100) return 5;
                 if (latency < 300) return 4;
@@ -466,71 +487,63 @@
                 if (latency < 1000) return 2;
                 return 1;
             }
-            
-            updateConnectionQuality(level) {
-                const bars = this.elements.connectionQuality.querySelectorAll('.quality-bar');
-                bars.forEach((bar, index) => {
-                    bar.classList.toggle('active', index < level);
-                });
-            }
-            
+
             async simulateLoading(serverData) {
-                const totalSteps = 20;
-                const baseDelay = 1000 / this.connectionSpeed;
-                
+                const totalSteps = this.loadingPhases.length;
+                const baseDelay = 1500 / this.connectionSpeed;
+
                 for (let i = 0; i <= totalSteps; i++) {
                     const progress = (i / totalSteps) * 100;
                     this.setProgress(progress);
+
+                    if (i < this.loadingPhases.length) {
+                        this.updateStatusMessage(this.loadingPhases[i]);
+                    }
                     
-                    const phaseIndex = Math.floor(progress / (100 / this.loadingPhases.length));
-                    this.updateLoadingMessage(this.loadingPhases[phaseIndex]);
                     await new Promise(resolve => setTimeout(resolve, baseDelay));
                 }
-                
-                this.updateLoadingMessage('Launching game...');
+
+                this.updateStatusMessage('Launching Lobby');
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 window.location.href = 'lobby.html';
             }
-            
+
             handleConnectionError(error) {
                 this.updateConnectionStatus('Connection failed');
-                this.updateLoadingMessage('Could not establish server connection');
-                
-                let errorMsg = 'Connection error! Please check your internet connection.';
+                this.updateStatusMessage('Could not establish server connection');
+
+                let errorMsg = '<i class="fas fa-exclamation-triangle"></i> Connection error! Please check your internet connection.';
                 if (error.message.includes('Server error')) {
-                    errorMsg = 'Server is currently unavailable. Please try again later.';
+                    errorMsg = '<i class="fas fa-exclamation-triangle"></i> Server is currently unavailable. Please try again later.';
                 } else if (error.message.includes('internet')) {
-                    errorMsg = 'No internet connection detected. Please connect to the internet.';
+                    errorMsg = '<i class="fas fa-exclamation-triangle"></i> No internet connection detected. Please connect to the internet.';
                 }
-                
-                this.elements.errorMessage.textContent = errorMsg;
+
+                this.elements.errorMessage.innerHTML = errorMsg;
                 this.elements.errorContainer.style.display = 'block';
-                this.updateConnectionQuality(0);
             }
-            
+
             setProgress(percent) {
                 this.elements.progressBar.style.width = `${percent}%`;
             }
-            
-            updateLoadingMessage(message) {
-                this.elements.loadingMessage.textContent = message;
+
+            updateStatusMessage(message) {
+                this.elements.statusMessage.textContent = message;
             }
-            
+
             updateConnectionStatus(status) {
-                this.elements.connectionStatus.textContent = status;
+                this.elements.connectionStatus.innerHTML = `<i class="fas fa-wifi"></i> ${status}`;
             }
         }
-        
-        // Initialize when page loads
+
         document.addEventListener('DOMContentLoaded', () => {
             new GameLoader();
         });
-        
-        // Listen for connection changes
+
         window.addEventListener('online', () => {
             document.querySelector('.error-container').style.display = 'none';
         });
-        
+
         window.addEventListener('offline', () => {
             const loader = new GameLoader();
             loader.handleConnectionError(new Error('No internet connection'));
