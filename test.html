@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client-Side reCAPTCHA</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body {
+            font-family: Poppins, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,255,255,0.2);
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            background: #00ffff;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #00cccc;
+        }
+        .message {
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>reCAPTCHA Client-Side Demo</h2>
+        <form id="myForm">
+            <input type="text" id="username" placeholder="আপনার নাম লিখুন" required>
+            <div class="g-recaptcha" data-sitekey="63c44b28-0fa8-4ae0-992c-92a40c1ebee6"></div>
+            <br>
+            <button type="submit">সাবমিট</button>
+        </form>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('myForm');
+        const messageDiv = document.getElementById('message');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // reCAPTCHA response check
+            let recaptchaResponse = grecaptcha.getResponse();
+            if(recaptchaResponse.length === 0){
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = "দয়া করে reCAPTCHA চেক করুন!";
+            } else {
+                messageDiv.style.color = 'lime';
+                messageDiv.textContent = `সাবমিশন সফল! স্বাগতম, ${document.getElementById('username').value}`;
+                // এখানে চাইলে ডেটা LocalStorage বা অন্য ফ্রন্টএন্ড অপশনে পাঠানো যায়
+            }
+        });
+    </script>
+</body>
+</html>
