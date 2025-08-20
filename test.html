@@ -1,69 +1,36 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>reCAPTCHA v2 Tickbox – Demo</title>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0f1115;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    form {
-      background: #1a1d29;
-      padding: 24px;
-      border-radius: 12px;
-      width: 320px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.4);
-    }
-    input, button {
-      width: 100%;
-      margin: 12px 0;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-    }
-    input {
-      background: #0f1320;
-      color: #fff;
-      border: 1px solid #333;
-    }
-    button {
-      background: #2563eb;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>reCAPTCHA Test Client</title>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
-  <form id="demoForm">
-    <h2>Demo Form</h2>
-    <input type="email" name="email" placeholder="আপনার ইমেইল" required>
-    
-    <!-- Tickbox reCAPTCHA -->
-    <div class="g-recaptcha" data-sitekey="6Lc2mqwrAAAAACBRKMkX-udmYgstJfsqO0XlkOad"></div>
-    
-    <button type="submit">Submit</button>
-    <p id="result"></p>
-  </form>
 
-  <script>
-    document.getElementById("demoForm").addEventListener("submit", function(e){
-      e.preventDefault();
-      var response = grecaptcha.getResponse();
-      if(response.length === 0) {
-        document.getElementById("result").innerHTML = "❌ প্রথমে টিকবক্সে ক্লিক করুন!";
-      } else {
-        document.getElementById("result").innerHTML = "✅ reCAPTCHA tick হয়েছে (কিন্তু সার্ভার ছাড়া যাচাই হয়নি)";
-      }
-    });
-  </script>
+<h2>reCAPTCHA Tickbox Test</h2>
+
+<div class="g-recaptcha" data-sitekey="6Lc2mqwrAAAAACBRKMkX-udmYgstJfsqO0XlkOad"></div>
+<br>
+<button id="testBtn">Send Token to Server</button>
+
+<script>
+document.getElementById("testBtn").addEventListener("click", async () => {
+    const token = document.querySelector("#g-recaptcha-response").value;
+    if(!token){ console.log("⚠️ Tick the reCAPTCHA first"); return; }
+
+    try {
+        const res = await fetch("http://localhost:8000/gnu.php", {  // Termux IP
+            method:"POST",
+            headers:{"Content-Type":"application/x-www-form-urlencoded"},
+            body:"token="+encodeURIComponent(token)
+        });
+        const data = await res.json();
+        console.log("Server Response:", data);
+    } catch(err){
+        console.error("Fetch Error:", err);
+    }
+});
+</script>
+
 </body>
 </html>
