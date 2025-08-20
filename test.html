@@ -1,84 +1,69 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client-Side reCAPTCHA</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <style>
-        body {
-            font-family: Poppins, sans-serif;
-            background-color: #121212;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: #1e1e1e;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0,255,255,0.2);
-            text-align: center;
-        }
-        input {
-            padding: 10px;
-            border-radius: 6px;
-            border: none;
-            margin-bottom: 15px;
-            width: 100%;
-        }
-        button {
-            padding: 10px 20px;
-            border-radius: 6px;
-            border: none;
-            background: #00ffff;
-            color: #000;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #00cccc;
-        }
-        .message {
-            margin-top: 15px;
-            font-size: 1.1em;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>reCAPTCHA v2 Tickbox – Demo</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f1115;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    form {
+      background: #1a1d29;
+      padding: 24px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.4);
+    }
+    input, button {
+      width: 100%;
+      margin: 12px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    input {
+      background: #0f1320;
+      color: #fff;
+      border: 1px solid #333;
+    }
+    button {
+      background: #2563eb;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>reCAPTCHA Client-Side Demo</h2>
-        <form id="myForm">
-            <input type="text" id="username" placeholder="আপনার নাম লিখুন" required>
-            <div class="g-recaptcha" data-sitekey="63c44b28-0fa8-4ae0-992c-92a40c1ebee6"></div>
-            <br>
-            <button type="submit">সাবমিট</button>
-        </form>
-        <div class="message" id="message"></div>
-    </div>
+  <form id="demoForm">
+    <h2>Demo Form</h2>
+    <input type="email" name="email" placeholder="আপনার ইমেইল" required>
+    
+    <!-- Tickbox reCAPTCHA -->
+    <div class="g-recaptcha" data-sitekey="6Lc2mqwrAAAAACBRKMkX-udmYgstJfsqO0XlkOad"></div>
+    
+    <button type="submit">Submit</button>
+    <p id="result"></p>
+  </form>
 
-    <script>
-        const form = document.getElementById('myForm');
-        const messageDiv = document.getElementById('message');
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // reCAPTCHA response check
-            let recaptchaResponse = grecaptcha.getResponse();
-            if(recaptchaResponse.length === 0){
-                messageDiv.style.color = 'red';
-                messageDiv.textContent = "দয়া করে reCAPTCHA চেক করুন!";
-            } else {
-                messageDiv.style.color = 'lime';
-                messageDiv.textContent = `সাবমিশন সফল! স্বাগতম, ${document.getElementById('username').value}`;
-                // এখানে চাইলে ডেটা LocalStorage বা অন্য ফ্রন্টএন্ড অপশনে পাঠানো যায়
-            }
-        });
-    </script>
+  <script>
+    document.getElementById("demoForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      var response = grecaptcha.getResponse();
+      if(response.length === 0) {
+        document.getElementById("result").innerHTML = "❌ প্রথমে টিকবক্সে ক্লিক করুন!";
+      } else {
+        document.getElementById("result").innerHTML = "✅ reCAPTCHA tick হয়েছে (কিন্তু সার্ভার ছাড়া যাচাই হয়নি)";
+      }
+    });
+  </script>
 </body>
 </html>
