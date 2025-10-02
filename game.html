@@ -630,21 +630,29 @@ let player = {
       }
     }
 
-    // Game Functions
-    function updateLeaderboard() {
-      const sortedPlayers = Object.values(players).sort((a, b) => b.score - a.score);
-      leaderboardEntries.innerHTML = '';
-      
-      sortedPlayers.forEach(player => {
-        const entry = document.createElement('div');
-        entry.classList.add('leaderboard-entry');
-        entry.innerHTML = `
-          <span class="leaderboard-name">${player.id === playerId ? 'YOU' : player.id}</span>
-          <span class="leaderboard-score">${player.score}</span>
-        `;
-        leaderboardEntries.appendChild(entry);
-      });
+function updateLeaderboard() {
+  const sortedPlayers = Object.values(players).sort((a,b)=>b.score - a.score);
+  leaderboardEntries.innerHTML = '';
+
+  sortedPlayers.forEach(p => {
+    const entry = document.createElement('div');
+    entry.classList.add('leaderboard-entry');
+
+    let displayName = p.name;
+
+    // Windows detection
+    if(p.userAgent && p.userAgent.toLowerCase().includes('windows')) {
+      displayName += ' <i class="fas fa-desktop"></i>'; // Font Awesome icon
     }
+
+    entry.innerHTML = `
+      <span class="leaderboard-name">${p.id===playerId?'YOU':displayName}</span>
+      <span class="leaderboard-score">${p.score}</span>
+    `;
+    leaderboardEntries.appendChild(entry);
+  });
+}
+
 
     function spawnEnemy() {
       if (Math.random() < 0.02) {
