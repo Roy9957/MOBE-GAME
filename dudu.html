@@ -4,7 +4,6 @@
   <title>MOBE GAME | Multiplayer Battle Arena</title>
   <meta name="description" content="Play the best online games on MOBE GAME. Join the ultimate gaming experience today!">
   <link rel="canonical" href="https://www.mobe-game.rf.gd/index.html" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
   <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
@@ -87,9 +86,6 @@
     .leaderboard-name {
       font-weight: bold;
       color: var(--light);
-      display: flex;
-      align-items: center;
-      gap: 5px;
     }
     
     .leaderboard-score {
@@ -204,10 +200,6 @@
       justify-content: center;
       align-items: center;
       font-weight: bold;
-    }
-    
-    .hidden {
-      display: none;
     }
     
     /* Chat Container */
@@ -434,7 +426,7 @@
   
   <!-- Chat Button -->
   <div class="chat-button" id="chatButton">
-    <i class="fas fa-comments" style="color: var(--primary); font-size: 24px;"></i>
+    <img src="g.png" alt="Chat">
     <div class="unread-badge hidden" id="unreadBadge">0</div>
   </div>
   
@@ -479,23 +471,18 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Player setup
+    // Game State
     const playerId = `player_${Math.random().toString(36).substr(2, 6)}`;
-    const ua = navigator.userAgent; // Client-side user agent
-
-    let player = {
-      id: playerId,
-      x: canvas.width/2,
-      y: canvas.height-100,
-      health: 100,
-      score: 0,
-      height: 40,
-      width: 40,
-      bullets: [],
-      userAgent: ua,
-      name: `Mobe_${Math.floor(100+Math.random()*900)}uid${Math.random().toString(36).substr(2,3)}`
+    let player = { 
+      id: playerId, 
+      x: canvas.width / 2, 
+      y: canvas.height - 100, 
+      width: 40, 
+      height: 40, 
+      health: 100, 
+      score: 0, 
+      bullets: [] 
     };
-
     let players = {};
     let enemies = [];
     let enemyBullets = [];
@@ -503,28 +490,31 @@
     let gameOver = false;
     let unreadMessages = 0;
 
-    // Load Assets - Using simple shapes as fallback
+    // Load Assets
     const playerImage = new Image();
-    playerImage.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMDBGRkNEIiBzdHJva2U9IiMwMDk5RkYiIHN0cm9rZS13aWR0aD0iMiIvPjxwb2x5Z29uIHBvaW50cz0iMjAsNSAxNSwyMCAyNSwyMCIgZmlsbD0iI0ZGMDBBQSIvPjwvc3ZnPg==';
+    playerImage.src = 'i.png';
     
     const player2Image = new Image();
-    player2Image.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMDA5OUZGIiBzdHJva2U9IiMwMEZGQ0QiIHN0cm9rZS13aWR0aD0iMiIvPjxwb2x5Z29uIHBvaW50cz0iMjAsNSAxNSwyMCAyNSwyMCIgZmlsbD0iI0ZGMDBBQSIvPjwvc3ZnPg==';
+    player2Image.src = 'k.png';
     
     const enemyImages = {
       purple: new Image(),
       red: new Image(),
       green: new Image()
     };
-    enemyImages.purple.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTgiIGZpbGw9IiM4MDAwODAiIHN0cm9rZT0iIzAwRkZDRCIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
-    enemyImages.red.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTgiIGZpbGw9IiNGRjAwMDAiIHN0cm9rZT0iIzAwRkZDRCIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
-    enemyImages.green.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTgiIGZpbGw9IiMwMEZGMDAiIHN0cm9rZT0iIzAwRkZDRCIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
+    enemyImages.purple.src = 's.png';
+    enemyImages.red.src = 'na.png';
+    enemyImages.green.src = 'h.png';
     
     const powerUpImages = {
       health: new Image(),
       score: new Image()
     };
-    powerUpImages.health.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAzMCI+PGNpcmNsZSBjeD0iMTUiIGN5PSIxNSIgcj0iMTQiIGZpbGw9IiNGRjAwMDAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBvbHlnb24gcG9pbnRzPSIxNSw4IDEyLDE1IDgsMTUgMTIsMjIgMTUsMTUgMTksMjIgMjMsMTUgMTksMTUiIGZpbGw9IiNGRkZGRkYiLz48L3N2Zz4=';
-    powerUpImages.score.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAzMCI+PGNpcmNsZSBjeD0iMTUiIGN5PSIxNSIgcj0iMTQiIGZpbGw9IiNGRkZGMDAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgeD0iMTUiIHk9IjE5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIj4kPC90ZXh0Pjwvc3ZnPg==';
+    powerUpImages.health.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI0ZGMDAwMCIgZD0iTTEyLDIxQzcuMSwyMSAzLDE2LjkgMywxMkMzLDcuMSA3LjEsMyAxMiwzQzE2LjksMyAyMSw3LjEgMjEsMTJDMjEsMTYuOSAxNi45LDIxIDEyLDIxTTEyLDVDOC4xLDUgNSw4LjEgNSwxMkM1LDE1LjkgOC4xLDE5IDEyLDE5QzE1LjksMTkgMTksMTUuOSAxOSwxMkMxOSw4LjEgMTUuOSw1IDEyLDUiLz48L3N2Zz4=';
+    powerUpImages.score.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI0ZGRkYwMCIgZD0iTTEyLDIxQzcuMSwyMSAzLDE2LjkgMywxMkMzLDcuMSA3LjEsMyAxMiwzQzE2LjksMyAyMSw3LjEgMjEsMTJDMjEsMTYuOSAxNi45LDIxIDEyLDIxTTEyLDVDOC4xLDUgNSw4LjEgNSwxMkM1LDE1LjkgOC4xLDE5IDEyLDE5QzE1LjksMTkgMTksMTUuOSAxOSwxMkMxOSw4LjEgMTUuOSw1IDEyLDUiLz48L3N2Zz4=';
+
+    const fireSound = new Audio('shooting.mp3');
+    fireSound.volume = 0.3;
 
     // DOM Elements
     const leaderboardEntries = document.getElementById('leaderboard-entries');
@@ -635,7 +625,7 @@
       }
     }
 
- function updateLeaderboard() {
+   function updateLeaderboard() {
   const sortedPlayers = Object.values(players).sort((a,b) => b.score - a.score);
   leaderboardEntries.innerHTML = '';
 
@@ -660,7 +650,6 @@
     leaderboardEntries.appendChild(entry);
   });
 }
-
 
     function spawnEnemy() {
       if (Math.random() < 0.02) {
@@ -905,7 +894,7 @@
       }
     }
 
-     // Input Handling
+    // Input Handling
     window.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') player.x -= 10;
       if (e.key === 'ArrowRight') player.x += 10;
