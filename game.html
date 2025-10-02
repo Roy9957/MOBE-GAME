@@ -471,18 +471,23 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Game State
-    const playerId = `player_${Math.random().toString(36).substr(2, 6)}`;
-    let player = { 
-      id: playerId, 
-      x: canvas.width / 2, 
-      y: canvas.height - 100, 
-      width: 40, 
-      height: 40, 
-      health: 100, 
-      score: 0, 
-      bullets: [] 
-    };
+   // যখন player join করবে
+const playerId = `player_${Math.random().toString(36).substr(2, 6)}`;
+const ua = navigator.userAgent; // Client-side user agent
+
+let player = {
+  id: playerId,
+  x: canvas.width/2,
+  y: canvas.height-100,
+  health: 100,
+  score: 0,
+  height: 40,
+  width: 40,
+  bullets: [],
+  userAgent: ua,
+  name: `Mobe_${Math.floor(100+Math.random()*900)}uid${Math.random().toString(36).substr(2,3)}`
+};
+
     let players = {};
     let enemies = [];
     let enemyBullets = [];
