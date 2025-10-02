@@ -4,6 +4,7 @@
   <title>MOBE GAME | Multiplayer Battle Arena</title>
   <meta name="description" content="Play the best online games on MOBE GAME. Join the ultimate gaming experience today!">
   <link rel="canonical" href="https://www.mobe-game.rf.gd/index.html" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
   <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
@@ -471,18 +472,23 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Game State
-    const playerId = `player_${Math.random().toString(36).substr(2, 6)}`;
-    let player = { 
-      id: playerId, 
-      x: canvas.width / 2, 
-      y: canvas.height - 100, 
-      width: 40, 
-      height: 40, 
-      health: 100, 
-      score: 0, 
-      bullets: [] 
-    };
+   // যখন player join করবে
+const playerId = `player_${Math.random().toString(36).substr(2, 6)}`;
+const ua = navigator.userAgent; // Client-side user agent
+
+let player = {
+  id: playerId,
+  x: canvas.width/2,
+  y: canvas.height-100,
+  health: 100,
+  score: 0,
+  height: 40,
+  width: 40,
+  bullets: [],
+  userAgent: ua,
+  name: `Mobe_${Math.floor(100+Math.random()*900)}uid${Math.random().toString(36).substr(2,3)}`
+};
+
     let players = {};
     let enemies = [];
     let enemyBullets = [];
@@ -625,21 +631,29 @@
       }
     }
 
-    // Game Functions
-    function updateLeaderboard() {
-      const sortedPlayers = Object.values(players).sort((a, b) => b.score - a.score);
-      leaderboardEntries.innerHTML = '';
-      
-      sortedPlayers.forEach(player => {
-        const entry = document.createElement('div');
-        entry.classList.add('leaderboard-entry');
-        entry.innerHTML = `
-          <span class="leaderboard-name">${player.id === playerId ? 'YOU' : player.id}</span>
-          <span class="leaderboard-score">${player.score}</span>
-        `;
-        leaderboardEntries.appendChild(entry);
-      });
+function updateLeaderboard() {
+  const sortedPlayers = Object.values(players).sort((a,b)=>b.score - a.score);
+  leaderboardEntries.innerHTML = '';
+
+  sortedPlayers.forEach(p => {
+    const entry = document.createElement('div');
+    entry.classList.add('leaderboard-entry');
+
+    let displayName = p.name;
+
+    // Windows detection
+    if(p.userAgent && p.userAgent.toLowerCase().includes('windows')) {
+      displayName += ' <i class="fas fa-desktop"></i>'; // Font Awesome icon
     }
+
+    entry.innerHTML = `
+      <span class="leaderboard-name">${p.id===playerId?'YOU':displayName}</span>
+      <span class="leaderboard-score">${p.score}</span>
+    `;
+    leaderboardEntries.appendChild(entry);
+  });
+}
+
 
     function spawnEnemy() {
       if (Math.random() < 0.02) {
