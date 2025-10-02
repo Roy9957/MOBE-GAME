@@ -635,45 +635,32 @@
       }
     }
 
-    // Fixed Leaderboard Function with Platform Icons
-    function updateLeaderboard() {
-      const sortedPlayers = Object.values(players).sort((a,b) => b.score - a.score);
-      leaderboardEntries.innerHTML = '';
+ function updateLeaderboard() {
+  const sortedPlayers = Object.values(players).sort((a,b) => b.score - a.score);
+  leaderboardEntries.innerHTML = '';
 
-      sortedPlayers.forEach(p => {
-        const entry = document.createElement('div');
-        entry.classList.add('leaderboard-entry');
+  sortedPlayers.forEach(p => {
+    const entry = document.createElement('div');
+    entry.classList.add('leaderboard-entry');
 
-        let displayName = p.name || `Player_${p.id.substr(7, 3)}`;
-        let platformIcon = '';
+    let displayName = p.name || `Player_${p.id.substr(7, 3)}`;
+    let platformIcon = '';
 
-        // Platform detection with icons
-        if (p.userAgent) {
-          const ua = p.userAgent.toLowerCase();
-          if (ua.includes('windows')) {
-            platformIcon = '<i class="fab fa-windows" style="color: #00FFCD;"></i>';
-          } else if (ua.includes('mac')) {
-            platformIcon = '<i class="fab fa-apple" style="color: #FFFFFF;"></i>';
-          } else if (ua.includes('linux')) {
-            platformIcon = '<i class="fab fa-linux" style="color: #FF00AA;"></i>';
-          } else if (ua.includes('android')) {
-            platformIcon = '<i class="fab fa-android" style="color: #00FF00;"></i>';
-          } else if (ua.includes('iphone') || ua.includes('ipad')) {
-            platformIcon = '<i class="fas fa-mobile-alt" style="color: #0099FF;"></i>';
-          } else {
-            platformIcon = '<i class="fas fa-desktop" style="color: #0099FF;"></i>';
-          }
-        }
-
-        entry.innerHTML = `
-          <span class="leaderboard-name">
-            ${p.id === playerId ? 'YOU: ' + displayName : displayName} ${platformIcon}
-          </span>
-          <span class="leaderboard-score">${p.score}</span>
-        `;
-        leaderboardEntries.appendChild(entry);
-      });
+    // শুধুমাত্র Windows ইউজারের পাশে Desktop আইকন দেখাবে
+    if (p.userAgent && p.userAgent.toLowerCase().includes('windows')) {
+      platformIcon = '<i class="fas fa-desktop" style="color: #0099FF;"></i>';
     }
+
+    entry.innerHTML = `
+      <span class="leaderboard-name">
+        ${p.id === playerId ? 'YOU: ' + displayName : displayName} ${platformIcon}
+      </span>
+      <span class="leaderboard-score">${p.score}</span>
+    `;
+    leaderboardEntries.appendChild(entry);
+  });
+}
+
 
     function spawnEnemy() {
       if (Math.random() < 0.02) {
