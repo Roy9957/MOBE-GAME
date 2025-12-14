@@ -1,611 +1,956 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MOBE - RITUAL SLAUGHTER CHAMBER</title>
+  <title>MOBE GAME | Multiplayer Battle Arena</title>
+  <meta name="description" content="Play the best online games on MOBE GAME. Join the ultimate gaming experience today!">
   <link rel="canonical" href="https://www.mobe-game.rf.gd/index.html" />
   <link rel="icon" href="https://assets.onecompiler.app/42swzbgaa/433g7msea/1000049145.png" type="image/png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  
-  <!-- Horror Google Fonts: Creepster (Title), Metal Mania (Sections/Buttons), Cinzel (Body) -->
-  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Metal+Mania&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-  
+  <!-- Switched to a horror-friendly retro/glitchy font -->
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=DotGothic16&display=swap" rel="stylesheet">
   <style>
-    /* HORROR COLOR PALETTE */
+    /* --- HORROR STYLE OVERRIDES --- */
     :root {
-        --primary: #990000; /* Deep Blood Red */
-        --secondary: #100505; /* Blackish Red/Rust */
-        --accent: #FF0000; /* Pure Red/Bright Blood */
-        --dark: #000000; /* True Black */
-        --light: #E0E0E0; /* Pale Grey/Bone */
-        --sickly-green: #008000; /* For status/health */
-        
-        /* Intense, Flickering Glow Effect */
-        --glow: 
-            0 0 5px var(--primary), 
-            0 0 15px var(--primary), 
-            0 0 30px var(--accent),
-            0 0 45px rgba(255, 0, 0, 0.5); 
+      /* Deep crimson/blood red */
+      --primary: #8b0000;
+      /* Eerie, flickering lime-green for UI elements */
+      --secondary: #33ff33;
+      /* Dark gray/black for backgrounds */
+      --dark: #0a0a0a;
+      /* Bone white for text */
+      --light: #f5f5dc;
+      /* Subtle dark shadow/blood glow */
+      --glow: 0 0 5px rgba(139, 0, 0, 0.8), 0 0 10px rgba(139, 0, 0, 0.5);
+      /* Background for the body and screens */
+      --bg-gradient: linear-gradient(135deg, #000000 0%, #1a0000 70%, #000000 100%);
+      /* Canvas flicker color */
+      --flicker-color: rgba(255, 255, 255, 0.05);
+      /* Font for the main game UI */
+      --ui-font: 'DotGothic16', monospace;
+      /* Font for the title/game over */
+      --title-font: 'Creepster', cursive;
     }
     
-    /* Keyframes for the Unsettling Flicker */
-    @keyframes flicker {
-        0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { text-shadow: var(--glow); opacity: 1; }
-        20%, 24%, 55% { text-shadow: none; opacity: 0.8; }
-    }
-
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      /* Subtle border for a raw, retro look */
+      border: 1px solid rgba(139, 0, 0, 0.1); 
     }
     
     body {
       margin: 0;
-      padding: 0;
       overflow: hidden;
-      font-family: 'Cinzel', serif; /* Use Cinzel for general text */
-      background: radial-gradient(circle at center, var(--secondary) 0%, var(--dark) 90%);
+      font-family: var(--ui-font);
+      background: var(--bg-gradient);
       color: var(--light);
       touch-action: manipulation;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      filter: grayscale(10%) contrast(150%);
+      cursor: crosshair; /* Spooky cursor */
     }
     
     canvas {
       display: block;
-      margin: 20px auto;
-      border: 3px ridge var(--primary);
-      box-shadow: 0 0 30px var(--accent);
-      background-color: var(--dark);
-      cursor: none; /* Hide default cursor */
+      margin: 0 auto;
+      /* Added a subtle glitch/flicker effect */
+      animation: flicker 2s infinite alternate;
     }
 
-    .game-ui {
-        width: 100%;
-        max-width: 800px;
-        padding: 0 20px;
-        margin-bottom: 10px;
+    @keyframes flicker {
+      0% { box-shadow: 0 0 0 var(--dark); opacity: 0.98; }
+      50% { box-shadow: 0 0 10px var(--primary); opacity: 1; }
+      53% { box-shadow: 0 0 0 var(--dark); opacity: 0.95; }
+      55% { box-shadow: 0 0 10px var(--primary); opacity: 1; }
+      100% { box-shadow: 0 0 0 var(--dark); opacity: 0.98; }
     }
 
-    /* Score and Info Bar */
-    .info-bar {
+    /* --- GAME UI ELEMENTS --- */
+    #game-info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 2px dashed var(--primary);
-    }
-    
-    .score-display, .health-display {
-      font-family: 'Metal Mania', cursive;
-      font-size: 1.5rem;
-      letter-spacing: 2px;
-      color: var(--light);
-      text-shadow: 0 0 10px var(--accent);
-    }
-    
-    .score-value {
-      color: var(--sickly-green);
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid var(--primary);
+      box-shadow: var(--glow);
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 10;
     }
 
-    .health-bar-container {
+    .info-item {
+      color: var(--light);
+      text-shadow: var(--glow);
+    }
+    
+    .info-label {
+      font-weight: bold;
+      color: var(--secondary); /* High contrast for labels */
+    }
+
+    /* Health Bar Styling */
+    #health-bar-container {
       width: 150px;
       height: 15px;
-      background-color: var(--secondary);
+      background-color: #333;
       border: 1px solid var(--primary);
+      box-shadow: inset 0 0 5px #000;
+      border-radius: 2px;
     }
 
-    .health-bar {
+    #health-bar {
       height: 100%;
-      background-color: var(--sickly-green);
-      transition: width 0.3s;
+      width: 100%;
+      background-color: var(--primary); /* Blood red health */
+      transition: width 0.3s ease-out;
+      box-shadow: 0 0 5px var(--primary);
     }
 
-    /* Game Over Overlay */
-    #gameOverScreen {
+    /* --- GAME OVER SCREEN --- */
+    #game-over-screen {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      display: none; /* Hidden by default */
+      background: rgba(0, 0, 0, 0.95); /* Extremely dark overlay */
+      display: none;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 100;
+      z-index: 50;
     }
 
-    #gameOverScreen h1 {
-        font-family: 'Creepster', cursive;
-        font-size: 5rem;
-        color: var(--accent);
-        text-shadow: var(--glow);
-        animation: flicker 2s infinite alternate;
-        margin-bottom: 20px;
+    #game-over-screen h2 {
+      font-family: var(--title-font);
+      font-size: 4em;
+      color: var(--primary);
+      text-shadow: 0 0 10px var(--primary), 0 0 20px #550000;
+      margin-bottom: 20px;
+      /* Add a subtle animation to the game over text */
+      animation: pulse 1.5s infinite alternate;
     }
-    
-    #gameOverScreen p {
-        font-family: 'Metal Mania', cursive;
-        font-size: 1.5rem;
-        color: var(--light);
-        margin-bottom: 30px;
+
+    #final-score {
+      font-size: 2em;
+      color: var(--secondary);
+      margin-bottom: 40px;
+      text-shadow: var(--glow);
     }
-    
-    /* Button Styling */
+
+    @keyframes pulse {
+      from { transform: scale(1); opacity: 1; }
+      to { transform: scale(1.05); opacity: 0.9; }
+    }
+
+    /* --- BUTTONS --- */
     .btn {
-        padding: 12px 30px;
-        margin: 5px;
-        border: 2px double var(--light);
-        font-family: 'Metal Mania', cursive;
-        font-size: 1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        background: linear-gradient(135deg, var(--secondary), #200000);
-        color: var(--light);
-        text-shadow: 0 0 5px var(--primary);
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .btn:hover {
-        transform: translateY(-2px);
-        background: var(--dark);
-        color: var(--accent);
-        box-shadow: 0 0 20px var(--accent);
-        border-color: var(--accent);
+      padding: 10px 20px;
+      border: 2px solid var(--primary);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: var(--light);
+      font-family: var(--ui-font);
+      font-size: 1.1em;
+      cursor: pointer;
+      border-radius: 0; /* Sharp, uninviting corners */
+      box-shadow: var(--glow);
+      transition: all 0.2s ease;
+      text-transform: uppercase;
     }
 
-    /* Responsive Canvas Container */
-    .canvas-wrapper {
-        width: 100%;
-        max-width: 800px;
-        aspect-ratio: 1 / 1; /* Maintain 1:1 ratio */
+    .btn:hover {
+      background-color: var(--primary);
+      color: var(--dark);
+      box-shadow: 0 0 15px var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: var(--glow);
+    }
+
+    /* --- FOOTER/BACK BUTTON --- */
+    #back-to-lobby {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
     }
     
-    @media (max-width: 800px) {
-        body {
-            /* Allow vertical scrolling on small screens if necessary due to fixed UI */
-            overflow-y: auto; 
-        }
-        .canvas-wrapper {
-            height: auto;
-            max-height: 80vh;
-        }
-        canvas {
-            width: 100%;
-            height: auto;
-        }
-        #gameOverScreen h1 {
-            font-size: 3.5rem;
-        }
+    /* --- CANVAS DRAWING STYLE UPDATE (JAVASCRIPT SIDE) --- */
+    /* Note: Since we cannot change images, we will ensure the drawing styles in JS align with the horror theme. */
+    
+    .canvas-overlay {
+        /* This div acts as a subtle filter over the canvas for extra atmosphere */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.1),
+            rgba(0, 0, 0, 0.1) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+        opacity: 0.5;
+        z-index: 5;
     }
   </style>
 </head>
 <body>
+  <div class="canvas-overlay"></div>
+  <canvas id="gameCanvas"></canvas>
 
-  <div class="game-ui">
-    <div class="info-bar">
-        <div class="score-display">
-            SLAUGHTER COUNT: <span id="score-value" class="score-value">0</span>
-        </div>
-        <div class="health-display">
-            SANITY:
-            <div class="health-bar-container">
-                <div id="health-bar" class="health-bar"></div>
-            </div>
-        </div>
+  <div id="game-info">
+    <div class="info-item"><span class="info-label">ID:</span> <span id="player-id"></span></div>
+    <div class="info-item"><span class="info-label">Health:</span> 
+      <div id="health-bar-container">
+        <div id="health-bar"></div>
+      </div>
     </div>
-  </div>
-  
-  <div class="canvas-wrapper">
-    <canvas id="gameCanvas"></canvas>
+    <div class="info-item"><span class="info-label">Score:</span> <span id="player-score">0</span></div>
+    <div class="info-item"><span class="info-label">Opponents:</span> <span id="opponent-count">0</span></div>
   </div>
 
-  <div id="gameOverScreen">
-    <h1>RITUAL FAILED</h1>
-    <p>Your Score: <span id="final-score">0</span></p>
-    <button id="restart-btn" class="btn"><i class="fas fa-redo-alt"></i> RESTART RITUAL</button>
-    <button id="lobby-btn" class="btn"><i class="fas fa-home"></i> RETURN TO LOBBY</button>
+  <div id="game-over-screen">
+    <h2 id="game-over-title">FATAL ERROR: ENTITY DETECTED</h2>
+    <p id="final-score">SCORE: 0</p>
+    <button id="restart-btn" class="btn">RESTART PROTOCOL</button>
   </div>
   
-  <script>
+  <button id="back-to-lobby" class="btn">EXIT DIMENSION</button>
+
+  <audio id="fire-sound" src="https://www.soundboard.com/media/259207" preload="auto"></audio>
+  <audio id="explosion-sound" src="https://www.soundboard.com/media/117180" preload="auto"></audio>
+  <audio id="pickup-sound" src="https://www.soundboard.com/media/116262" preload="auto"></audio>
+  <audio id="gameover-sound" src="https://www.soundboard.com/media/116641" preload="auto"></audio>
+
+  <script type="module">
+    // --- FIREBASE IMPORTS ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot, getDoc, collection, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    
+    // Set Firestore log level to Debug
+    setLogLevel('Debug');
+
+    // --- GLOBAL VARS & SETUP ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const scoreEl = document.getElementById('score-value');
-    const healthBarEl = document.getElementById('health-bar');
-    const gameOverScreen = document.getElementById('gameOverScreen');
+    const healthBar = document.getElementById('health-bar');
+    const scoreEl = document.getElementById('player-score');
+    const playerIdEl = document.getElementById('player-id');
+    const opponentCountEl = document.getElementById('opponent-count');
+    const gameOverScreen = document.getElementById('game-over-screen');
     const finalScoreEl = document.getElementById('final-score');
-    const restartBtn = document.getElementById('restart-btn');
-    const lobbyBtn = document.getElementById('lobby-btn');
+    const restartButton = document.getElementById('restart-btn');
+    const backButton = document.getElementById('back-to-lobby');
 
-    // Game state
-    let state = {};
+    // Audio elements
+    const fireSound = document.getElementById('fire-sound');
+    const explosionSound = document.getElementById('explosion-sound');
+    const pickupSound = document.getElementById('pickup-sound');
+    const gameoverSound = document.getElementById('gameover-sound');
 
-    function resetGameState() {
-      state = {
-        player: { x: canvas.width / 2, y: canvas.height - 50, size: 20, health: 100 },
-        bullets: [],
-        enemies: [],
-        enemyBullets: [],
-        explosions: [],
-        score: 0,
-        gameOver: false,
-        lastEnemySpawnTime: 0,
-        enemySpawnInterval: 1500,
-        enemySpeed: 1.5,
+    // Canvas size initialization
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let db;
+    let auth;
+    let userId;
+    let dbReady = false;
+    let gameOver = false;
+    let lastEnemySpawnTime = 0;
+    const ENEMY_SPAWN_INTERVAL = 2000; // milliseconds
+
+    // State for the current player
+    const player = {
+      x: canvas.width / 2,
+      y: canvas.height - 100,
+      width: 40,
+      height: 40,
+      speed: 5,
+      health: 100,
+      score: 0,
+      bullets: [],
+      lastBulletTime: 0,
+      fireRate: 200, // milliseconds
+      powerUp: null, // 'shield' or null
+      shieldTimer: 0
+    };
+
+    // Game objects managed by the server (other players, enemies, power-ups)
+    let opponents = {};
+    let enemies = [];
+    let powerUps = [];
+
+    // --- FIREBASE CONFIGURATION AND AUTHENTICATION ---
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+    if (Object.keys(firebaseConfig).length > 0) {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+        
+        // Asynchronously sign in
+        const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                playerIdEl.textContent = userId;
+                console.log("Authenticated with UID:", userId);
+                dbReady = true;
+                
+                // Set initial player state in Firestore
+                await setPlayerState();
+                
+                // Start listening for opponents and game state
+                setupFirestoreListeners();
+                
+                // If game is not yet running, start it
+                if (!gameOver) {
+                    requestAnimationFrame(gameLoop);
+                }
+            } else {
+                try {
+                    if (token) {
+                        await signInWithCustomToken(auth, token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Firebase Auth Error:", error);
+                    // Handle critical error, maybe show an error message on the screen
+                }
+            }
+        });
+    } else {
+        console.error("Firebase config is missing. Game will run in single-player simulation mode.");
+        userId = 'SIM_USER_' + Math.random().toString(16).slice(2, 8).toUpperCase();
+        playerIdEl.textContent = userId;
+        dbReady = true;
+        requestAnimationFrame(gameLoop);
+    }
+    
+    const PUBLIC_COLLECTION_PATH = `artifacts/${appId}/public/data/players`;
+    const ENEMIES_COLLECTION_PATH = `artifacts/${appId}/public/data/enemies`;
+    const POWERUPS_COLLECTION_PATH = `artifacts/${appId}/public/data/powerups`;
+
+
+    // --- FIREBASE DATA HANDLING ---
+
+    async function setPlayerState() {
+      if (!dbReady || gameOver) return;
+      const playerRef = doc(db, PUBLIC_COLLECTION_PATH, userId);
+      // Simplify player state for network sync
+      const stateToSync = {
+        x: player.x,
+        y: player.y,
+        health: player.health,
+        score: player.score,
+        lastActive: Date.now(),
+        bullets: JSON.stringify(player.bullets.filter(b => !b.hit).map(b => ({x: b.x, y: b.y}))), // Only sync active bullets
+        powerUp: player.powerUp
       };
       
-      gameOverScreen.style.display = 'none';
-      gameLoopId = requestAnimationFrame(gameLoop); // Restart the loop
+      try {
+        // Use setDoc with merge to prevent overwriting other fields if they existed
+        await setDoc(playerRef, stateToSync, { merge: true });
+      } catch (e) {
+        console.error("Error setting player state:", e);
+      }
+    }
+    
+    // Throttle for syncing player position to Firebase
+    let syncTimeout = null;
+    function syncPlayer() {
+        if (!syncTimeout) {
+            syncTimeout = setTimeout(() => {
+                setPlayerState();
+                syncTimeout = null;
+            }, 50); // Sync every 50ms (20 times per second)
+        }
     }
 
-    // --- Utility Functions ---
+    // Server-side (simplified for client-only Firestore structure) logic for enemies/powerups
+    let serverState = {
+        enemies: [],
+        powerups: [],
+        lastEnemySpawn: 0,
+        lastPowerUpSpawn: 0,
+    };
 
-    function resizeCanvas() {
-        const wrapper = document.querySelector('.canvas-wrapper');
-        const size = Math.min(wrapper.clientWidth, wrapper.clientHeight);
-        canvas.width = size;
-        canvas.height = size;
-        
-        // Adjust player position if game is active
-        if (state.player && !state.gameOver) {
-            state.player.x = canvas.width / 2;
-            state.player.y = canvas.height - 50;
-        } else if (!state.player) {
-            // Initial setting
-            state.player = { x: canvas.width / 2, y: canvas.height - 50, size: 20, health: 100 };
+    // Client-side spawn logic to simulate server for single-file app
+    function spawnEnemy() {
+        if (Date.now() - serverState.lastEnemySpawn > ENEMY_SPAWN_INTERVAL) {
+            serverState.lastEnemySpawn = Date.now();
+            const newEnemy = {
+                id: crypto.randomUUID(),
+                x: Math.random() * canvas.width,
+                y: 0,
+                width: 30,
+                height: 30,
+                speed: 1 + Math.random() * 2,
+                health: 10,
+                color: '#8b0000', // Horror enemy color
+                lastShotTime: Date.now(),
+                fireRate: 1000 + Math.random() * 2000,
+                bullets: [],
+                scoreValue: 10
+            };
+            enemies.push(newEnemy);
         }
     }
     
-    // Set initial size
-    window.onload = () => {
-        resizeCanvas();
-        resetGameState();
-    };
-    window.addEventListener('resize', resizeCanvas);
-
-    // --- Input Handling (Touch and Mouse) ---
+    function spawnPowerUp() {
+        if (Date.now() - serverState.lastPowerUpSpawn > 15000) {
+            serverState.lastPowerUpSpawn = Date.now();
+            const newPowerUp = {
+                id: crypto.randomUUID(),
+                x: Math.random() * canvas.width,
+                y: 0,
+                width: 25,
+                height: 25,
+                type: 'shield', // Only shield for now
+                color: '#33ff33', // Eerie green glow
+                speed: 1,
+            };
+            powerUps.push(newPowerUp);
+        }
+    }
     
-    let isFiring = false;
-    let lastFireTime = 0;
-    const fireRate = 200; // ms between shots
-
-    function handleInput(e) {
-      if (state.gameOver) return;
+    function setupFirestoreListeners() {
+      if (!dbReady) return;
       
-      let clientX;
-      if (e.touches && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-      } else if (e.clientX !== undefined) {
-        clientX = e.clientX;
-      } else {
-        return;
-      }
+      // 1. Opponent Listener
+      const q = query(collection(db, PUBLIC_COLLECTION_PATH), where("lastActive", ">", Date.now() - 30000));
+      onSnapshot(q, (snapshot) => {
+        const newOpponents = {};
+        let count = 0;
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (doc.id !== userId) {
+            // Parse bullets from JSON string
+            try {
+                data.bullets = JSON.parse(data.bullets || '[]');
+            } catch (e) {
+                data.bullets = [];
+            }
+            newOpponents[doc.id] = data;
+            count++;
+          } else {
+            // Update local player state from own doc to handle simultaneous updates/cleanup
+            player.health = data.health;
+            player.score = data.score;
+            player.powerUp = data.powerUp;
+          }
+        });
+        opponents = newOpponents;
+        opponentCountEl.textContent = count;
+      }, (error) => {
+        console.error("Opponent Listener Error:", error);
+      });
+      
+      // 2. Enemy Listener (Simulated - only client-side enemies for simplicity in single-file)
+      // In a real multiplayer game, this would listen to a 'server' enemy state.
+      // Since this is client-only, we rely on the local `enemies` array.
 
-      const canvasRect = canvas.getBoundingClientRect();
-      const canvasX = clientX - canvasRect.left;
-
-      // Map touch/mouse X position to player X position on the canvas
-      state.player.x = Math.max(
-        state.player.size / 2, 
-        Math.min(canvas.width - state.player.size / 2, canvasX)
-      );
+      // 3. Power-up Listener (Simulated - only client-side powerups for simplicity in single-file)
+      // Since this is client-only, we rely on the local `powerUps` array.
     }
 
-    canvas.addEventListener('mousemove', handleInput);
-    canvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        handleInput(e);
-    }, { passive: false });
 
-    canvas.addEventListener('mousedown', () => { isFiring = true; });
-    canvas.addEventListener('mouseup', () => { isFiring = false; });
-    canvas.addEventListener('touchstart', (e) => { 
-        e.preventDefault();
-        handleInput(e);
-        isFiring = true; 
-    }, { passive: false });
-    canvas.addEventListener('touchend', () => { isFiring = false; });
-    
-    // --- Game Logic ---
+    // --- GAME LOGIC ---
 
-    function updatePlayer() {
-      // Update health bar display
-      healthBarEl.style.width = `${state.player.health}%`;
-      if (state.player.health <= 0) {
+    function updateHealth() {
+      healthBar.style.width = `${player.health}%`;
+      if (player.health <= 25) {
+        healthBar.style.backgroundColor = 'red';
+      } else if (player.health <= 50) {
+        healthBar.style.backgroundColor = 'orange';
+      } else {
+        healthBar.style.backgroundColor = var('--primary');
+      }
+      
+      if (player.health <= 0 && !gameOver) {
         endGame();
       }
     }
-
-    function playerFire() {
-      if (isFiring && (Date.now() - lastFireTime > fireRate)) {
-        state.bullets.push({ 
-          x: state.player.x, 
-          y: state.player.y - state.player.size / 2, 
-          size: 4, 
-          speed: 8, 
-          color: 'var(--sickly-green)' 
-        });
-        lastFireTime = Date.now();
-      }
-    }
     
-    function spawnEnemy() {
-      if (Date.now() - state.lastEnemySpawnTime > state.enemySpawnInterval) {
-        const x = Math.random() * (canvas.width - 40) + 20;
-        const enemy = {
-          x: x,
-          y: -20,
-          size: 30,
-          health: 10 + Math.floor(state.score / 50),
-          color: 'var(--primary)',
-          lastFireTime: Date.now(),
-          fireInterval: 1000 + (Math.random() * 2000),
-        };
-        state.enemies.push(enemy);
-        state.lastEnemySpawnTime = Date.now();
-        
-        // Increase difficulty
-        if (state.enemySpawnInterval > 500) {
-            state.enemySpawnInterval -= 10;
-        }
-        if (state.enemySpeed < 4) {
-             state.enemySpeed += 0.005;
-        }
-      }
-    }
-    
-    function enemyFire() {
-      state.enemies.forEach(enemy => {
-        if (Date.now() - enemy.lastFireTime > enemy.fireInterval) {
-          state.enemyBullets.push({
-            x: enemy.x,
-            y: enemy.y + enemy.size / 2,
-            size: 5,
-            speed: 4,
-            color: 'var(--accent)',
-          });
-          enemy.lastFireTime = Date.now();
-          // Slightly randomize next fire interval
-          enemy.fireInterval = 1000 + (Math.random() * 2000);
-        }
-      });
-    }
-
-    function updateEnemies() {
-      state.enemies.forEach(enemy => {
-        enemy.y += state.enemySpeed;
-      });
-      // Filter out enemies that move off-screen
-      state.enemies = state.enemies.filter(enemy => enemy.y < canvas.height + enemy.size);
-    }
-    
-    function updateBullets() {
-      state.bullets.forEach(bullet => {
-        bullet.y -= bullet.speed;
-      });
-      state.bullets = state.bullets.filter(bullet => bullet.y > 0);
-
-      state.enemyBullets.forEach(bullet => {
-        bullet.y += bullet.speed;
-      });
-      state.enemyBullets = state.enemyBullets.filter(bullet => bullet.y < canvas.height);
-    }
-    
-    function updateExplosions() {
-      state.explosions.forEach(explosion => {
-        explosion.size += 0.5;
-        explosion.opacity -= 0.05;
-      });
-      state.explosions = state.explosions.filter(explosion => explosion.opacity > 0);
-    }
-
-    function checkCollisions() {
-      // 1. Player Bullets vs Enemies
-      state.bullets = state.bullets.filter(bullet => {
-        let hit = false;
-        state.enemies = state.enemies.filter(enemy => {
-          if (
-            bullet.x < enemy.x + enemy.size / 2 &&
-            bullet.x > enemy.x - enemy.size / 2 &&
-            bullet.y < enemy.y + enemy.size / 2 &&
-            bullet.y > enemy.y - enemy.size / 2
-          ) {
-            // Hit!
-            hit = true;
-            enemy.health -= 1;
-            if (enemy.health <= 0) {
-              state.explosions.push({ x: enemy.x, y: enemy.y, size: 10, opacity: 1, color: 'var(--primary)' });
-              state.score += 10;
-              return false; // Remove enemy
-            }
-            return true; // Keep enemy
-          }
-          return true; // Keep enemy
-        });
-        return !hit; // Remove bullet if it hit
-      });
-      
-      // 2. Enemy Bullets vs Player
-      state.enemyBullets = state.enemyBullets.filter(bullet => {
-        if (
-          bullet.x < state.player.x + state.player.size / 2 &&
-          bullet.x > state.player.x - state.player.size / 2 &&
-          bullet.y < state.player.y + state.player.size / 2 &&
-          bullet.y > state.player.y - state.player.size / 2
-        ) {
-          // Hit player!
-          state.player.health = Math.max(0, state.player.health - 5);
-          state.explosions.push({ x: bullet.x, y: bullet.y, size: 5, opacity: 1, color: 'var(--accent)' });
-          return false; // Remove bullet
-        }
-        return true; // Keep bullet
-      });
-      
-      // 3. Enemies vs Player (Melee damage / collision)
-      state.enemies = state.enemies.filter(enemy => {
-        const dx = state.player.x - enemy.x;
-        const dy = state.player.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < (state.player.size + enemy.size) / 2) {
-          // Melee hit!
-          state.player.health = Math.max(0, state.player.health - 25); // Heavy damage
-          state.explosions.push({ x: enemy.x, y: enemy.y, size: 15, opacity: 1, color: 'var(--accent)' });
-          state.score += 5; // Small score for close call kill
-          return false; // Remove enemy
-        }
-        return true; // Keep enemy
-      });
+    function updateScore() {
+      scoreEl.textContent = player.score;
     }
 
     function endGame() {
-      state.gameOver = true;
-      cancelAnimationFrame(gameLoopId);
-      finalScoreEl.textContent = state.score;
-      gameOverScreen.style.display = 'flex';
-    }
-
-    // --- Drawing Functions ---
-
-    function drawPlayer() {
-      // Player is a simple triangle (blood cult symbol)
-      ctx.fillStyle = 'var(--light)';
-      ctx.beginPath();
-      ctx.moveTo(state.player.x, state.player.y - state.player.size / 2);
-      ctx.lineTo(state.player.x - state.player.size / 2, state.player.y + state.player.size / 2);
-      ctx.lineTo(state.player.x + state.player.size / 2, state.player.y + state.player.size / 2);
-      ctx.closePath();
-      ctx.fill();
+      gameOver = true;
+      gameoverSound.currentTime = 0;
+      gameoverSound.play();
       
-      // Add a small red glow to the player
-      ctx.shadowColor = 'var(--accent)';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = 'var(--accent)';
-      ctx.beginPath();
-      ctx.arc(state.player.x, state.player.y, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0; // Reset shadow for other drawings
+      // Final sync of score before showing game over
+      setPlayerState(); 
+
+      gameOverScreen.style.display = 'flex';
+      finalScoreEl.textContent = `SOUL SCORE: ${player.score}`;
+      
+      // Clean up player state after a delay (to ensure final score is synced)
+      setTimeout(async () => {
+          if (dbReady) {
+              try {
+                  const playerRef = doc(db, PUBLIC_COLLECTION_PATH, userId);
+                  // Set active status to false, or delete the document for cleanup
+                  await setDoc(playerRef, { health: 0, lastActive: Date.now() - 300000 }, { merge: true }); 
+              } catch (e) {
+                  console.error("Error cleaning up player state:", e);
+              }
+          }
+      }, 5000);
     }
     
+    function updatePlayer() {
+      if (player.powerUp === 'shield') {
+          player.shieldTimer--;
+          if (player.shieldTimer <= 0) {
+              player.powerUp = null;
+          }
+      }
+    }
+
+    function updateEnemies() {
+      enemies = enemies.filter(enemy => {
+        enemy.y += enemy.speed;
+        // Check if enemy is off-screen
+        return enemy.y < canvas.height + enemy.height;
+      });
+    }
+
+    function updateBullets(bullets) {
+      // Bullets from the local player (traveling up)
+      bullets.player = bullets.player.filter(bullet => {
+        bullet.y -= 10;
+        return bullet.y > 0 && !bullet.hit;
+      });
+      
+      // Bullets from enemies (traveling down)
+      bullets.enemy = bullets.enemy.filter(bullet => {
+        bullet.y += 5;
+        return bullet.y < canvas.height && !bullet.hit;
+      });
+    }
+
+    // Function to handle player firing
+    function playerFire() {
+        if (keys.Space && Date.now() - player.lastBulletTime > player.fireRate) {
+            player.lastBulletTime = Date.now();
+            fireBullet();
+        }
+    }
+
+    // Function to handle enemy firing
+    function enemyFire() {
+        enemies.forEach(enemy => {
+            if (Date.now() - enemy.lastShotTime > enemy.fireRate) {
+                enemy.lastShotTime = Date.now();
+                enemy.bullets.push({
+                    x: enemy.x,
+                    y: enemy.y,
+                    radius: 3,
+                    hit: false,
+                });
+            }
+            // Update existing enemy bullets
+            enemy.bullets = enemy.bullets.filter(bullet => {
+                bullet.y += 5;
+                return bullet.y < canvas.height && !bullet.hit;
+            });
+        });
+    }
+
+    // Collision detection function
+    function checkCollision(obj1, obj2) {
+      return obj1.x < obj2.x + obj2.width &&
+             obj1.x + obj1.width > obj2.x &&
+             obj1.y < obj2.y + obj2.height &&
+             obj1.y + obj1.height > obj2.y;
+    }
+    
+    // Collision detection for circular bullets (enemy)
+    function checkCircleCollision(obj1, circle2) {
+        const closestX = Math.max(obj1.x, Math.min(circle2.x, obj1.x + obj1.width));
+        const closestY = Math.max(obj1.y, Math.min(circle2.y, obj1.y + obj1.height));
+        const distanceX = circle2.x - closestX;
+        const distanceY = circle2.y - closestY;
+        return (distanceX * distanceX + distanceY * distanceY) < (circle2.radius * circle2.radius);
+    }
+
+
+    function checkCollisions() {
+      // 1. Player Bullets vs Enemies
+      player.bullets.forEach(bullet => {
+        if (bullet.hit) return;
+        enemies.forEach(enemy => {
+          // Note: Using bullet width/height for enemy check might be too simple, 
+          // but for this example, we'll simplify collision to a bounding box check.
+          const enemyBox = {x: enemy.x - enemy.width/2, y: enemy.y - enemy.height/2, width: enemy.width, height: enemy.height};
+          const bulletBox = {x: bullet.x, y: bullet.y, width: bullet.width, height: bullet.height};
+          
+          if (checkCollision(bulletBox, enemyBox)) {
+            bullet.hit = true;
+            enemy.health -= 5; 
+            
+            if (enemy.health <= 0) {
+              enemy.hit = true; // Mark enemy for removal
+              player.score += enemy.scoreValue;
+              explosionSound.currentTime = 0;
+              explosionSound.play();
+            }
+          }
+        });
+      });
+      // Filter out hit bullets and dead enemies
+      player.bullets = player.bullets.filter(b => !b.hit);
+      enemies = enemies.filter(e => !e.hit);
+      
+      // 2. Enemy Bullets vs Player
+      const playerBox = {x: player.x - player.width/2, y: player.y - player.height/2, width: player.width, height: player.height};
+      enemies.forEach(enemy => {
+        enemy.bullets.forEach(bullet => {
+            if (bullet.hit) return;
+            if (checkCircleCollision(playerBox, {x: bullet.x, y: bullet.y, radius: bullet.radius})) {
+                bullet.hit = true;
+                if (player.powerUp !== 'shield') {
+                    player.health -= 10;
+                    updateHealth();
+                } else {
+                    player.powerUp = null; // Shield absorbs one hit
+                }
+            }
+        });
+        enemy.bullets = enemy.bullets.filter(b => !b.hit);
+      });
+      
+      // 3. Player vs Power-Ups
+      powerUps.forEach(powerUp => {
+        const puBox = {x: powerUp.x - powerUp.width/2, y: powerUp.y - powerUp.height/2, width: powerUp.width, height: powerUp.height};
+        if (checkCollision(playerBox, puBox)) {
+          powerUp.hit = true;
+          player.powerUp = powerUp.type;
+          player.shieldTimer = 300; // 5 seconds @ 60 FPS
+          pickupSound.currentTime = 0;
+          pickupSound.play();
+        }
+      });
+      powerUps = powerUps.filter(p => !p.hit);
+    }
+
+    // --- DRAWING FUNCTIONS (HORROR STYLED) ---
+
+    function drawPlayer() {
+      ctx.save();
+      ctx.translate(player.x, player.y);
+      
+      // Player body - a dark, angular shape
+      ctx.fillStyle = player.powerUp === 'shield' ? '#33ff33' : '#a00000';
+      ctx.strokeStyle = player.powerUp === 'shield' ? '#66ff66' : '#ff0000';
+      ctx.lineWidth = 2;
+      
+      // Draw a dark, slightly offset shape to look glitchy
+      ctx.beginPath();
+      ctx.moveTo(0, -player.height / 2);
+      ctx.lineTo(player.width / 2, player.height / 2);
+      ctx.lineTo(-player.width / 2, player.height / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Shield effect (flickering green aura)
+      if (player.powerUp === 'shield') {
+          ctx.beginPath();
+          ctx.arc(0, 0, player.width * 1.5, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(51, 255, 51, ${0.5 + Math.sin(Date.now() / 100) * 0.3})`;
+          ctx.lineWidth = 4;
+          ctx.stroke();
+          
+          // Display timer
+          ctx.fillStyle = '#33ff33';
+          ctx.font = "12px var(--ui-font)";
+          ctx.textAlign = "center";
+          ctx.fillText(`SHIELD: ${Math.ceil(player.shieldTimer / 60)}s`, 0, player.height * 1.5);
+      }
+      
+      ctx.restore();
+    }
+    
+    function drawOpponents() {
+      // Draw other players
+      Object.entries(opponents).forEach(([id, opp]) => {
+        ctx.save();
+        ctx.translate(opp.x, opp.y);
+
+        // Opponent body - eerie blue/purple tone
+        ctx.fillStyle = opp.powerUp === 'shield' ? '#6666ff' : '#4b0082';
+        ctx.strokeStyle = opp.powerUp === 'shield' ? '#9999ff' : '#6a5acd';
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -opp.height / 2);
+        ctx.lineTo(opp.width / 2, opp.height / 2);
+        ctx.lineTo(-opp.width / 2, opp.height / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Draw ID text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = "10px var(--ui-font)";
+        ctx.textAlign = "center";
+        ctx.fillText(id, 0, opp.height * 1.5);
+
+        // Draw opponent bullets
+        opp.bullets.forEach(bullet => {
+            ctx.fillStyle = '#4b0082';
+            ctx.fillRect(bullet.x - opp.x, bullet.y - opp.y, 5, 15);
+        });
+
+        ctx.restore();
+      });
+    }
+
     function drawEnemies() {
-      state.enemies.forEach(enemy => {
-        ctx.fillStyle = enemy.color;
+      enemies.forEach(enemy => {
+        ctx.save();
+        ctx.translate(enemy.x, enemy.y);
         
-        // Enemy is a square/box (the ancient horror)
-        ctx.fillRect(
-          enemy.x - enemy.size / 2, 
-          enemy.y - enemy.size / 2, 
-          enemy.size, 
-          enemy.size
-        );
+        // Enemy body - pulsating red/black
+        ctx.fillStyle = `rgba(139, 0, 0, ${0.8 + Math.sin(Date.now() / 300) * 0.2})`;
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 2;
         
-        // Draw health indicator (deep red)
-        const healthRatio = enemy.health / (10 + Math.floor(state.score / 50));
-        ctx.fillStyle = 'rgba(153, 0, 0, 0.8)'; // Darker Red
-        ctx.fillRect(enemy.x - enemy.size / 2, enemy.y - enemy.size / 2 - 5, enemy.size, 3);
-        ctx.fillStyle = 'var(--accent)'; // Bright Red for remaining health
-        ctx.fillRect(enemy.x - enemy.size / 2, enemy.y - enemy.size / 2 - 5, enemy.size * healthRatio, 3);
+        // Draw a menacing skull-like shape (simplified box for a retro look)
+        ctx.fillRect(-enemy.width / 2, -enemy.height / 2, enemy.width, enemy.height);
+        ctx.strokeRect(-enemy.width / 2, -enemy.height / 2, enemy.width, enemy.height);
+        
+        // Enemy bullets (dark, pulsating circle)
+        enemy.bullets.forEach(bullet => {
+            ctx.beginPath();
+            ctx.arc(bullet.x - enemy.x, bullet.y - enemy.y, bullet.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 0, 0, ${0.7 + Math.sin(Date.now() / 50) * 0.3})`;
+            ctx.fill();
+        });
+
+        ctx.restore();
       });
     }
 
     function drawBullets() {
-      // Player Bullets (Sickly Green)
-      state.bullets.forEach(bullet => {
-        ctx.fillStyle = bullet.color;
-        ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, bullet.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Enemy Bullets (Bright Red)
-      state.enemyBullets.forEach(bullet => {
-        ctx.fillStyle = bullet.color;
-        ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, bullet.size, 0, Math.PI * 2);
-        ctx.fill();
+      // Local player bullets
+      player.bullets.forEach(bullet => {
+        ctx.fillStyle = '#33ff33'; // Eerie green
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+        // Add a small glow to the bullet
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = '#33ff33';
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+        ctx.shadowBlur = 0; // Reset shadow
       });
     }
 
-    function drawExplosions() {
-      state.explosions.forEach(explosion => {
-        ctx.save();
-        ctx.globalAlpha = explosion.opacity;
-        ctx.fillStyle = explosion.color;
-        ctx.beginPath();
-        ctx.arc(explosion.x, explosion.y, explosion.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+    function drawPowerUps() {
+      powerUps.forEach(pu => {
+          ctx.save();
+          ctx.translate(pu.x, pu.y);
+          
+          // Power up as a flickering, pulsing object
+          ctx.fillStyle = `rgba(51, 255, 51, ${0.6 + Math.sin(Date.now() / 150) * 0.4})`;
+          ctx.strokeStyle = '#33ff33';
+          ctx.lineWidth = 2;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#33ff33';
+
+          // Draw an ominous 'X' shape
+          ctx.beginPath();
+          ctx.moveTo(-pu.width/2, -pu.height/2);
+          ctx.lineTo(pu.width/2, pu.height/2);
+          ctx.moveTo(pu.width/2, -pu.height/2);
+          ctx.lineTo(-pu.width/2, pu.height/2);
+          ctx.stroke();
+          
+          ctx.shadowBlur = 0;
+          ctx.restore();
       });
     }
-    
-    function drawScore() {
-      scoreEl.textContent = state.score;
-    }
-    
+
     function drawBackground() {
-      // Subtle background refresh to create a trail effect
-      ctx.fillStyle = 'rgba(10, 10, 10, 0.1)'; 
+      // Background clear with slight trail
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw starfield (white/light particles)
-      ctx.fillStyle = 'var(--light)';
-      for (let i = 0; i < 100; i++) {
-        // Simple star pattern with vertical movement for atmosphere
+      // Eerie starfield / static noise
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      for (let i = 0; i < 50; i++) {
         const x = Math.random() * canvas.width;
-        // Use modulus to wrap the stars vertically
-        const y = (Math.random() * canvas.height + (Date.now() * 0.01)) % canvas.height; 
+        const y = (Math.random() * canvas.height + (Date.now() * 0.05)) % canvas.height;
         const size = Math.random() * 1.5;
         ctx.fillRect(x, y, size, size);
       }
     }
+
+
+    // --- MOVEMENT AND INPUT ---
+    const keys = {};
+
+    document.addEventListener('keydown', (e) => {
+      keys[e.code] = true;
+    });
+
+    document.addEventListener('keyup', (e) => {
+      keys[e.code] = false;
+    });
+
+    // Touch/Mouse movement
+    canvas.addEventListener('mousemove', (e) => {
+      if (gameOver) return;
+      // Get canvas bounds to normalize coordinates
+      const rect = canvas.getBoundingClientRect();
+      let targetX = e.clientX - rect.left;
+      let targetY = e.clientY - rect.top;
+
+      // Limit player to canvas bounds
+      player.x = Math.max(player.width / 2, Math.min(targetX, canvas.width - player.width / 2));
+      player.y = Math.max(player.height / 2, Math.min(targetY, canvas.height - player.height / 2));
+      
+      syncPlayer();
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (gameOver || e.touches.length === 0) return;
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      let targetX = touch.clientX - rect.left;
+      let targetY = touch.clientY - rect.top;
+
+      player.x = Math.max(player.width / 2, Math.min(targetX, canvas.width - player.width / 2));
+      player.y = Math.max(player.height / 2, Math.min(targetY, canvas.height - player.height / 2));
+      
+      syncPlayer();
+    }, { passive: false });
+
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      // On tap, fire a bullet
+      if (e.touches.length === 1) { 
+        if (!gameOver && Date.now() - player.lastBulletTime > player.fireRate) {
+            player.lastBulletTime = Date.now();
+            fireBullet();
+        }
+      }
+    }, { passive: false });
+
+    function fireBullet() {
+      if (!gameOver) {
+        player.bullets.push({
+          x: player.x,
+          y: player.y - player.height / 2,
+          width: 5,
+          height: 15,
+          hit: false
+        });
+        
+        fireSound.currentTime = 0;
+        fireSound.play();
+        syncPlayer();
+      }
+    }
+
+    // Restart Game
+    restartButton.addEventListener('click', async () => {
+      player.health = 100;
+      player.score = 0;
+      player.bullets = [];
+      player.powerUp = null;
+      gameOver = false;
+      gameOverScreen.style.display = 'none';
+      updateHealth();
+      updateScore();
+      // Re-initialize player state in Firestore
+      await setPlayerState();
+      requestAnimationFrame(gameLoop); // Resume the loop
+    });
     
-    // Main game loop
-    let gameLoopId;
+    // Back to Lobby Button
+    backButton.addEventListener('click', () => {
+        // Clear player data from server immediately on exit
+        if (dbReady) {
+            const playerRef = doc(db, PUBLIC_COLLECTION_PATH, userId);
+            setDoc(playerRef, { health: 0, lastActive: Date.now() - 300000 }, { merge: true });
+        }
+        window.location.href = "lobby.html"; // Assuming a lobby.html exists
+    });
+
+    // Window Resize
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      player.x = canvas.width / 2;
+      player.y = canvas.height - 100;
+    });
+
+    // --- MAIN GAME LOOP ---
     function gameLoop() {
-      if (state.gameOver) return;
-      
-      drawBackground();
-      spawnEnemy();
-      updatePlayer();
-      playerFire();
-      enemyFire();
-      updateBullets();
-      updateEnemies();
-      updateExplosions();
-      checkCollisions();
-      
-      drawEnemies();
-      drawBullets();
-      drawExplosions();
-      drawPlayer(); // Draw player last to ensure visibility
-      drawScore();
-      
-      gameLoopId = requestAnimationFrame(gameLoop);
+      if (!gameOver) {
+        // Core game logic (runs locally)
+        drawBackground();
+        
+        updatePlayer();
+        spawnEnemy();
+        spawnPowerUp();
+        
+        playerFire(); // Player's constant firing if key is held
+        enemyFire();
+        
+        checkCollisions();
+        
+        updateEnemies();
+        updatePowerUps();
+        
+        // Drawing functions
+        drawOpponents();
+        drawEnemies();
+        drawPowerUps();
+        drawBullets();
+        drawPlayer();
+
+        updateScore();
+        
+        requestAnimationFrame(gameLoop);
+      }
     }
     
-    // --- Event Listeners ---
-    restartBtn.addEventListener('click', () => {
-        resizeCanvas(); // Ensure canvas size is correct before restart
-        resetGameState();
-    });
-    
-    lobbyBtn.addEventListener('click', () => {
-        window.location.href = 'lobby.html';
-    });
-    
+    function updatePowerUps() {
+        powerUps = powerUps.filter(pu => {
+            pu.y += pu.speed;
+            return pu.y < canvas.height + pu.height && !pu.hit;
+        });
+    }
+
+    // Initial setup and start
+    updateHealth();
+    updateScore();
+    // The game loop will start after successful Firebase Auth if dbReady is true.
+    if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+        requestAnimationFrame(gameLoop); // Start immediately in simulation mode
+    }
+
   </script>
 </body>
 </html>
